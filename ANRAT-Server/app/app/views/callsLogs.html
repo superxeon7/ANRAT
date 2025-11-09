@@ -1,4 +1,4 @@
-<div class="ui {{load}} segment" style="border: none; box-shadow: none; padding: 0; height: 600px; overflow: hidden;" id="parent">
+<div class="ui {{load}} segment" style="border: none; box-shadow: none; padding: 0; height: 600px; overflow-y: auto;" id="parent">
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin: 0;">
@@ -26,38 +26,34 @@
                     <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; width: 120px;">Type</th>
                 </tr>
             </thead>
-        </table>
-        
-        <div style="max-height: 450px; overflow-y: auto;" infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tbody>
-                    <tr ng-repeat="call in callsList | limitTo:barLimit" style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px; width: 50px; font-size: 14px; color: #6b7280;">{{$index + 1}}</td>
-                        <td style="padding: 12px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="phone icon" style="margin: 0; font-size: 14px;"></i>
-                                </div>
-                                <span style="font-weight: 500; font-size: 14px; color: #374151; font-family: monospace;">{{call.phoneNo}}</span>
+            <!-- ✅ GABUNGKAN TBODY KE TABLE YANG SAMA -->
+            <tbody infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
+                <tr ng-repeat="call in callsList | limitTo:barLimit" style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; width: 50px; font-size: 14px; color: #6b7280;">{{$index + 1}}</td>
+                    <td style="padding: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="phone icon" style="margin: 0; font-size: 14px;"></i>
                             </div>
-                        </td>
-                        <td style="padding: 12px; font-size: 14px; color: #6b7280;">
-                            <span ng-if="call.name==null" style="font-style: italic; color: #9ca3af;">Unknown</span>
-                            <span ng-if="call.name!=null" style="font-weight: 500; color: #374151;">{{call.name}}</span>
-                        </td>
-                        <td style="padding: 12px; width: 100px; font-size: 14px; color: #6b7280; font-family: monospace;">{{call.duration}}</td>
-                        <td style="padding: 12px; width: 120px;">
-                            <span ng-if="call.type==1" style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                <i class="arrow down icon" style="margin: 0;"></i> INCOMING
-                            </span>
-                            <span ng-if="call.type!=1" style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                <i class="arrow up icon" style="margin: 0;"></i> OUTGOING
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            <span style="font-weight: 500; font-size: 14px; color: #374151; font-family: monospace;">{{call.phoneNo}}</span>
+                        </div>
+                    </td>
+                    <td style="padding: 12px; font-size: 14px; color: #6b7280;">
+                        <span ng-if="call.name==null" style="font-style: italic; color: #9ca3af;">Unknown</span>
+                        <span ng-if="call.name!=null" style="font-weight: 500; color: #374151;">{{call.name}}</span>
+                    </td>
+                    <td style="padding: 12px; width: 100px; font-size: 14px; color: #6b7280; font-family: monospace;">{{call.duration}}</td>
+                    <td style="padding: 12px; width: 120px;">
+                        <span ng-if="call.type==1" style="background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <i class="arrow down icon" style="margin: 0;"></i> INCOMING
+                        </span>
+                        <span ng-if="call.type!=1" style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <i class="arrow up icon" style="margin: 0;"></i> OUTGOING
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
         <div ng-if="logsSize === 0" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
             <i class="phone icon" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px; display: block;"></i>

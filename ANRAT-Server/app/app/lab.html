@@ -101,7 +101,7 @@
         /* Main Container */
         .main-container {
             display: flex;
-            height: calc(100vh - 50px);
+            height: calc(100vh - 200px);
         }
 
         /* Sidebar */
@@ -179,23 +179,9 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-        }
-
-        .content-body {
-            flex: 1;
-            padding: 30px;
             overflow-y: auto;
             background: #f5f7fa;
-        }
-
-        /* View Container */
-        .view-container {
-            background: white;
-            border-radius: 10px;
             padding: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            min-height: 100%;
         }
 
         /* Logs */
@@ -218,124 +204,11 @@
 
         .log-time {
             color: #6b7280;
-            min-width: 80px;
+            min-width: 150px;
         }
 
         .log-message {
             flex: 1;
-        }
-
-        /* Card Styles */
-        .info-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .info-card h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .info-item {
-            background: rgba(255,255,255,0.1);
-            padding: 12px;
-            border-radius: 6px;
-        }
-
-        .info-label {
-            font-size: 11px;
-            opacity: 0.8;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-value {
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 5px;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-
-        /* Tables */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .data-table thead {
-            background: #f9fafb;
-        }
-
-        .data-table th {
-            padding: 12px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            border-bottom: 2px solid #e5e7eb;
-        }
-
-        .data-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e5e7eb;
-            font-size: 14px;
-        }
-
-        .data-table tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        /* Image Display */
-        .image-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Loading */
-        .loading {
-            opacity: 0.5;
-            pointer-events: none;
         }
 
         /* Scrollbar */
@@ -391,63 +264,47 @@
             </div>
 
             <div class="sidebar-menu">
-                <a class="menu-item red active" ng-click="goToPage('camera')">
+                <a class="menu-item red" ng-click="goToPage('camera')" ng-class="{'active': currentPage === 'camera'}">
                     <i class="camera icon"></i>
                     <span>Camera</span>
                 </a>
-                <a class="menu-item teal" ng-click="goToPage('fileManager')">
+                <a class="menu-item teal" ng-click="goToPage('fileManager')" ng-class="{'active': currentPage === 'fileManager'}">
                     <i class="folder open icon"></i>
                     <span>File Manager</span>
                 </a>
-                <a class="menu-item blue" ng-click="goToPage('mic')">
+                <a class="menu-item blue" ng-click="goToPage('mic')" ng-class="{'active': currentPage === 'mic'}">
                     <i class="microphone icon"></i>
                     <span>Microphone</span>
                 </a>
-                <a class="menu-item violet" ng-click="goToPage('location')">
+                <a class="menu-item violet" ng-click="goToPage('location')" ng-class="{'active': currentPage === 'location'}">
                     <i class="map marker alternate icon"></i>
                     <span>Location</span>
                 </a>
-                <a class="menu-item purple" ng-click="goToPage('contacts')">
+                <a class="menu-item purple" ng-click="goToPage('contacts')" ng-class="{'active': currentPage === 'contacts'}">
                     <i class="users icon"></i>
                     <span>Contacts</span>
                 </a>
-                <a class="menu-item grey" ng-click="goToPage('smsManager')">
+                <a class="menu-item grey" ng-click="goToPage('smsManager')" ng-class="{'active': currentPage === 'smsManager'}">
                     <i class="comment alternate icon"></i>
                     <span>SMS Manager</span>
                 </a>
-                <a class="menu-item black" ng-click="goToPage('callsLogs')">
+                <a class="menu-item black" ng-click="goToPage('callsLogs')" ng-class="{'active': currentPage === 'callsLogs'}">
                     <i class="phone icon"></i>
                     <span>Call Logs</span>
                 </a>
             </div>
         </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <div class="content-body">
-                <div class="view-container">
-                    <div ng-view></div>
-                </div>
-            </div>
-
-            <!-- Logs Footer -->
-            <div class="logs-footer">
-                <div class="log-entry" ng-repeat="log in logs">
-                    <span class="log-time">{{log.date}}</span>
-                    <span class="log-message" ng-style="{'color': log.color}">{{log.msg}}</span>
-                </div>
-            </div>
-        </div>
+        <!-- Content Area - LANGSUNG ng-view tanpa wrapper -->
+        <div class="content-area" ng-view></div>
     </div>
 
-    <script>
-        // Handle menu switching
-        $(document).ready(function() {
-            $('.menu-item').click(function() {
-                $('.menu-item').removeClass('active');
-                $(this).addClass('active');
-            });
-        });
-    </script>
+    <!-- Logs Footer - ID harus "logy" untuk LabCtrl -->
+    <div class="logs-footer" id="logy">
+        <div class="log-entry" ng-repeat="log in logs">
+            <span class="log-time">{{log.date}}</span>
+            <span class="log-message" ng-style="{'color': log.color}">{{log.msg}}</span>
+        </div>
+    </div>
 </body>
 </html>

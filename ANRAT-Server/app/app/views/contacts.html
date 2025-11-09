@@ -15,7 +15,7 @@
         </button>
     </div>
 
-    <div style="background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;" ng-init="currentPage=1; itemsPerPage=100000">
         <table style="width: 100%; border-collapse: collapse; margin: 0;">
             <thead>
                 <tr style="background: #f9fafb;">
@@ -26,11 +26,11 @@
             </thead>
         </table>
         
-        <div style="max-height: 450px; overflow-y: auto;" infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
+        <div style="max-height: 450px; overflow-y: auto;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tbody>
-                    <tr ng-repeat="contact in contactsList | limitTo:barLimit" style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px; width: 50px; font-size: 14px; color: #6b7280;">{{$index + 1}}</td>
+                    <tr ng-repeat="contact in contactsList | limitTo:itemsPerPage:((currentPage-1)*itemsPerPage)" style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 12px; width: 50px; font-size: 14px; color: #6b7280;">{{(currentPage-1)*itemsPerPage + $index + 1}}</td>
                         <td style="padding: 12px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #a855f7, #ec4899); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
@@ -43,6 +43,82 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        <div ng-if="contactsSize > 0" style="padding: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: #f9fafb;">
+            <div style="color: #6b7280; font-size: 14px;">
+                Showing {{(currentPage-1)*itemsPerPage + 1}} to {{currentPage*itemsPerPage > contactsSize ? contactsSize : currentPage*itemsPerPage}} of {{contactsSize}} contacts
+            </div>
+            
+            <div style="display: flex; gap: 4px;">
+                <!-- First Page Button -->
+                <button ng-click="currentPage=1" ng-disabled="currentPage === 1" 
+                        ng-style="currentPage === 1 ? {'opacity': '0.5', 'cursor': 'not-allowed'} : {'opacity': '1'}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; transition: all 0.2s;">
+                    <i class="angle double left icon" style="margin: 0;"></i>
+                </button>
+                
+                <!-- Previous Page Button -->
+                <button ng-click="currentPage=currentPage-1" ng-disabled="currentPage === 1" 
+                        ng-style="currentPage === 1 ? {'opacity': '0.5', 'cursor': 'not-allowed'} : {'opacity': '1'}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; transition: all 0.2s;">
+                    <i class="angle left icon" style="margin: 0;"></i>
+                </button>
+                
+                <!-- Page 1 -->
+                <button ng-if="1 <= Math.ceil(contactsSize/itemsPerPage)" ng-click="currentPage=1" 
+                        ng-style="1 === currentPage ? {'background': '#a855f7', 'color': 'white', 'border-color': '#a855f7'} : {}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; min-width: 40px; transition: all 0.2s;">
+                    1
+                </button>
+                
+                <!-- Dots if needed -->
+                <span ng-if="currentPage > 3" style="padding: 8px 12px; color: #6b7280;">...</span>
+                
+                <!-- Current page - 1 -->
+                <button ng-if="currentPage > 2 && currentPage - 1 > 1" ng-click="currentPage=currentPage-1" 
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; min-width: 40px; transition: all 0.2s;">
+                    {{currentPage-1}}
+                </button>
+                
+                <!-- Current page (if not first or last) -->
+                <button ng-if="currentPage !== 1 && currentPage !== Math.ceil(contactsSize/itemsPerPage)" ng-click="currentPage=currentPage" 
+                        ng-style="{'background': '#a855f7', 'color': 'white', 'border-color': '#a855f7'}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; min-width: 40px; transition: all 0.2s;">
+                    {{currentPage}}
+                </button>
+                
+                <!-- Current page + 1 -->
+                <button ng-if="currentPage < Math.ceil(contactsSize/itemsPerPage) - 1 && currentPage + 1 < Math.ceil(contactsSize/itemsPerPage)" ng-click="currentPage=currentPage+1" 
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; min-width: 40px; transition: all 0.2s;">
+                    {{currentPage+1}}
+                </button>
+                
+                <!-- Dots if needed -->
+                <span ng-if="currentPage < Math.ceil(contactsSize/itemsPerPage) - 2" style="padding: 8px 12px; color: #6b7280;">...</span>
+                
+                <!-- Last Page -->
+                <button ng-if="Math.ceil(contactsSize/itemsPerPage) > 1" ng-click="currentPage=Math.ceil(contactsSize/itemsPerPage)" 
+                        ng-style="Math.ceil(contactsSize/itemsPerPage) === currentPage ? {'background': '#a855f7', 'color': 'white', 'border-color': '#a855f7'} : {}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; min-width: 40px; transition: all 0.2s;">
+                    {{Math.ceil(contactsSize/itemsPerPage)}}
+                </button>
+                
+                <!-- Next Page Button -->
+                <button ng-click="currentPage=currentPage+1" ng-disabled="currentPage >= Math.ceil(contactsSize/itemsPerPage)" 
+                        ng-style="currentPage >= Math.ceil(contactsSize/itemsPerPage) ? {'opacity': '0.5', 'cursor': 'not-allowed'} : {'opacity': '1'}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; transition: all 0.2s;">
+                    <i class="angle right icon" style="margin: 0;"></i>
+                </button>
+                
+                <!-- Last Page Button -->
+                <button ng-click="currentPage=Math.ceil(contactsSize/itemsPerPage)" ng-disabled="currentPage >= Math.ceil(contactsSize/itemsPerPage)" 
+                        ng-style="currentPage >= Math.ceil(contactsSize/itemsPerPage) ? {'opacity': '0.5', 'cursor': 'not-allowed'} : {'opacity': '1'}"
+                        style="padding: 8px 12px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; color: #6b7280; font-size: 14px; transition: all 0.2s;">
+                    <i class="angle double right icon" style="margin: 0;"></i>
+                </button>
+            </div>
         </div>
 
         <div ng-if="contactsSize === 0" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
