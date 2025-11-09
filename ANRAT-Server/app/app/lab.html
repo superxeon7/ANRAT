@@ -10,6 +10,69 @@
             window.module = module;
             module = undefined;
         }
+        (function() {
+    const { remote } = require('electron');
+    const os = require('os');
+    
+    // Detect platform
+    const platform = os.platform();
+    
+    // Add platform class to body
+    if (platform === 'linux') {
+        document.body.classList.add('linux');
+        console.log('Linux detected - Applied compatibility fixes');
+    } else if (platform === 'win32') {
+        document.body.classList.add('windows');
+    } else if (platform === 'darwin') {
+        document.body.classList.add('macos');
+    }
+    
+    // Linux specific fixes
+    if (platform === 'linux') {
+        // Fix for window dragging in Linux
+        const titlebar = document.querySelector('.titlebar');
+        if (titlebar && !remote.getCurrentWindow().isFrameless()) {
+            titlebar.style.display = 'none';
+            
+            // Adjust main container
+            const mainContainer = document.querySelector('.main-container');
+            if (mainContainer) {
+                mainContainer.style.height = '100vh';
+            }
+        }
+        
+        // Disable GPU acceleration if laggy (uncomment if needed)
+        // remote.app.disableHardwareAcceleration();
+        
+        // Fix for font rendering
+        document.documentElement.style.setProperty('-webkit-font-smoothing', 'antialiased');
+        document.documentElement.style.setProperty('-moz-osx-font-smoothing', 'grayscale');
+        
+        // Fix for transparency issues
+        document.body.style.backgroundColor = '#0c094f';
+        
+        // Listen for window state changes
+        const currentWindow = remote.getCurrentWindow();
+        
+        currentWindow.on('maximize', () => {
+            console.log('Window maximized');
+        });
+        
+        currentWindow.on('unmaximize', () => {
+            console.log('Window unmaximized');
+        });
+        
+        // Performance optimization for Linux
+        requestAnimationFrame(() => {
+            console.log('Linux compatibility mode enabled');
+        });
+    }
+    
+    // Log platform info
+    console.log('Platform:', platform);
+    console.log('Architecture:', os.arch());
+    console.log('Release:', os.release());
+})();
     </script>
 
     <script type="text/javascript" src="assets/js/lib/jquery-3.1.1.min.js"></script>
@@ -236,6 +299,163 @@
             border-radius: 8px;
             margin-top: 20px;
         }
+        /* Linux Compatibility Fixes - Tambahkan di bagian <style> */
+
+/* Detect Linux */
+body.linux {
+    /* Fix font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Linux: Hide custom titlebar if using native frame */
+body.linux .titlebar {
+    display: none;
+}
+
+/* Linux: Adjust main container height */
+body.linux .main-container {
+    height: 100vh;
+}
+
+/* Linux: Fix draggable regions */
+.draggable {
+    -webkit-app-region: drag;
+}
+
+.notDraggable,
+button,
+input,
+select,
+textarea,
+a {
+    -webkit-app-region: no-drag !important;
+}
+
+/* Linux: Fix scrollbar rendering */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Linux: Fix transparency issues */
+body.linux {
+    background: #0c094f !important;
+}
+
+body.linux .sidebar {
+    background: #1a202c !important;
+}
+
+/* Linux: Better button rendering */
+button {
+    cursor: pointer;
+    outline: none;
+    border: none;
+}
+
+button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Linux: Fix select dropdown */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 30px;
+}
+
+/* Linux: Fix input rendering */
+input,
+textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Linux: Fix table rendering */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* Linux: Better shadow rendering */
+.card,
+.sidebar {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Linux: Fix for modal/overlay issues */
+.ui.modal,
+.ui.dimmer {
+    z-index: 9999 !important;
+}
+
+/* Linux: Fix icon rendering */
+i.icon {
+    display: inline-block;
+    font-style: normal;
+    line-height: 1;
+}
+
+/* Linux: Fix gradient rendering */
+@supports (-webkit-appearance: none) {
+    .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+}
+
+/* Linux: Fix overflow issues */
+body.linux * {
+    box-sizing: border-box;
+}
+
+/* Linux: Performance optimization */
+body.linux * {
+    will-change: auto;
+}
+
+body.linux .animated {
+    will-change: transform, opacity;
+}
+
+/* Linux: Fix flex layout issues */
+.flex-container {
+    display: flex !important;
+}
+
+/* Khusus untuk Ubuntu/Debian yang menggunakan GTK theme */
+@media (prefers-color-scheme: dark) {
+    body.linux {
+        color-scheme: dark;
+    }
+}
+
+/* Fix untuk resolusi tinggi di Linux */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body.linux {
+        zoom: 1;
+    }
+}
     </style>
 </head>
 
