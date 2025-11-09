@@ -1,50 +1,106 @@
-<div class="ui top attached tabular menu">
-    <a class="item active" data-tab="sendSms">Send SMS</a>
-    <a class="item" data-tab="smsList" ng-click="getSMSList()">SMS List</a>
-</div>
-<div class="ui bottom attached tab segment active h90 center aligned" data-tab="sendSms">
-    <br>
-    <div class="ui labeled input">
-        <div class="ui label">
-            TO://
-        </div>
-        <input type="text" ng-model="phoneNo" placeholder="Phone Number">
+<div style="height: 100%;">
+    <div class="ui top attached tabular menu" style="border: none; background: transparent; margin-bottom: 20px;">
+        <a class="item active" data-tab="sendSms" style="border-radius: 8px 8px 0 0; font-weight: 600;">
+            <i class="paper plane icon"></i> Send SMS
+        </a>
+        <a class="item" data-tab="smsList" ng-click="getSMSList()" style="border-radius: 8px 8px 0 0; font-weight: 600;">
+            <i class="inbox icon"></i> SMS List
+        </a>
     </div>
-    <br>
-    <label>Message :</label>
-    <br>
-    <textarea class="w100 h40" ng-model="msg" placeholder="Message to send.."></textarea>
-    <br>
-    <br>
-    <button class="ui labeled icon red button" ng-click="SendSMS(phoneNo,msg)"> <i class="send outline icon"></i>SEND</button>
 
+    <!-- Send SMS Tab -->
+    <div class="ui bottom attached tab segment active" data-tab="sendSms" style="border: none; box-shadow: none; padding: 0; min-height: 500px;">
+        <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin-bottom: 25px;">
+                <i class="paper plane grey icon"></i> Send New SMS
+            </h3>
+
+            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.9;">Recipient Phone Number</label>
+                    <input type="text" ng-model="phoneNo" placeholder="+62 812 3456 7890" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.2); color: white;">
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.9;">Message</label>
+                    <textarea ng-model="msg" placeholder="Type your message here..." style="width: 100%; min-height: 150px; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 14px; resize: vertical; font-family: inherit; background: rgba(255,255,255,0.2); color: white;"></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" ng-click="SendSMS(phoneNo,msg)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 15px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="paper plane icon"></i> Send Message
+            </button>
+        </div>
+    </div>
+
+    <!-- SMS List Tab -->
+    <div class="ui bottom attached tab {{load}} segment" data-tab="smsList" style="border: none; box-shadow: none; padding: 0; min-height: 500px; overflow: hidden;" id="parent">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0;">
+                    <i class="inbox grey icon"></i> Message History
+                </h3>
+                <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px;">
+                    <span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 13px;">
+                        {{smsSize}} Messages
+                    </span>
+                </p>
+            </div>
+            <button class="btn btn-primary" ng-click="SaveSMS()" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                <i class="download icon"></i> Export SMS
+            </button>
+        </div>
+
+        <div style="background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; margin: 0;">
+                <thead>
+                    <tr style="background: #f9fafb;">
+                        <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; width: 200px;">Phone Number</th>
+                        <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Message</th>
+                    </tr>
+                </thead>
+            </table>
+            
+            <div style="max-height: 400px; overflow-y: auto;" infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr ng-repeat="sms in smsList | limitTo:barLimit" style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 12px; width: 200px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 35px; height: 35px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                        <i class="phone icon" style="margin: 0; font-size: 14px;"></i>
+                                    </div>
+                                    <span style="font-weight: 500; font-size: 14px; color: #374151; font-family: monospace;">{{sms.phoneNo}}</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px; color: #6b7280; font-size: 14px;">{{sms.msg}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div ng-if="smsSize === 0" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+                <i class="inbox icon" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px; display: block;"></i>
+                <p style="font-size: 16px; margin: 0;">No messages found</p>
+                <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">SMS messages will appear here once loaded</p>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="ui bottom attached tab {{load}} segment h90" data-tab="smsList" style="overflow: scroll; height: 360px;" id="parent">
-    <table class="ui very compact striped table">
-        <thead>
-            <tr>
-                <th>
-                    <div class="ui label">
-                        <i class="mail icon"></i> <span ng-bind="smsSize"></span>
-                        <span class="detail">Messages</span>
-                    </div>
-                </th>
-                <th>
-                    <div class="right aligned">
-                        <a class="ui red label" ng-click="SaveSMS()">
-                            <i class="save icon"></i> Save
-                        </a>
-                    </div>
-                </th>
-            </tr>
-        </thead>
-        <tbody infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
-            <tr ng-repeat="sms in smsList | limitTo:barLimit">
-                <td ng-bind="sms.phoneNo"></td>
-                <td ng-bind="sms.msg"></td>
-            </tr>
-        </tbody>
-    </table>
 
-
-</div>
+<style>
+    .ui.tabular.menu .item {
+        background: white !important;
+        border: 1px solid #e5e7eb !important;
+        margin-right: 5px !important;
+    }
+    
+    .ui.tabular.menu .item.active {
+        background: white !important;
+        border-bottom-color: white !important;
+    }
+    
+    input::placeholder, textarea::placeholder {
+        color: rgba(255,255,255,0.7) !important;
+    }
+</style>

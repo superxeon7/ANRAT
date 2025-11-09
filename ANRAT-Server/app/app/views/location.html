@@ -1,15 +1,23 @@
-<div class="ui segment h100 {{load}}">
-    <div class="ui grid center aligned h100">
-        <div class="row h20">
-            <div class="column">
-                <button class="ui labeled icon black button" ng-click="Refresh()"><i class="refresh icon"></i>Refresh</button>
+<div class="ui {{load}} segment" style="border: none; box-shadow: none; padding: 0;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;">
+            <i class="map marker alternate violet icon"></i> Location Tracking
+        </h2>
+        
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Real-time Location</h3>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.9;">Track target device location on map</p>
+                </div>
+                <button class="btn btn-primary" ng-click="Refresh()" style="background: white; color: #764ba2; padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    <i class="sync icon"></i> Refresh Location
+                </button>
             </div>
         </div>
+    </div>
 
-        <div class="row h80">
-            <div class="column h100">
-                <div class="h100" id="mapid"></div>
-            </div>
-        </div>
+    <div style="background: #f9fafb; padding: 20px; border-radius: 10px;">
+        <div id="mapid" style="height: 500px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
     </div>
 </div>

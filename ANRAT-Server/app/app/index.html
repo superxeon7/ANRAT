@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html ng-app="myapp">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>ANRAT - Modern Interface</title>
 
-    <title>ANRAT</title>
-
-    <!-- Insert this line above script imports  -->
     <script>
         if (typeof module === 'object') {
             window.module = module;
@@ -15,123 +12,574 @@
         }
     </script>
 
-
     <script type="text/javascript" src="assets/js/lib/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="../node_modules/fomantic-ui/dist/semantic.min.js"></script>
     <script type="text/javascript" src="../node_modules/angular/angular.js"></script>
     <script type="text/javascript" src="assets/js/controllers/AppCtrl.js"></script>
-    <!-- Insert this line after script imports -->
+
     <script>
         if (window.module) module = window.module;
     </script>
 
-    <link rel="stylesheet" href="assets/css/mystyle.css">
     <link rel="stylesheet" href="../node_modules/fomantic-ui/dist/semantic.min.css" />
+    
     <style>
-        #log {
-            height: 198px;
-            /* Adjust the height value as per your preference */
-            overflow: scroll;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-         body {
-            background-color: #0c094f;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+
+        /* Titlebar */
+        .titlebar {
+            height: 40px;
+            background: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            -webkit-app-region: drag;
+            color: white;
+        }
+
+        .titlebar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .titlebar-title img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .titlebar-controls {
+            display: flex;
+            gap: 10px;
+            -webkit-app-region: no-drag;
+        }
+
+        .titlebar-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .titlebar-button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-minimize { background: #fbbf24; }
+        .btn-maximize { background: #10b981; }
+        .btn-close { background: #ef4444; }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 40px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #1a202c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            color: #60a5fa;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 5px;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .menu-section {
+            margin-bottom: 25px;
+        }
+
+        .menu-section-title {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .menu-item:hover {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+        }
+
+        .menu-item.active {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            border-left: 3px solid #60a5fa;
+        }
+
+        .menu-item i {
+            width: 20px;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .menu-item span {
+            font-size: 14px;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .content-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f5f7fa;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+
+        /* Server Control */
+        .server-control {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            width: 120px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Victims Table */
+        .victims-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .victims-table thead {
+            background: #f9fafb;
+        }
+
+        .victims-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .victims-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .victims-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .btn-open {
+            padding: 6px 12px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-open:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Logs */
+        .logs-container {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 15px;
+            border-radius: 6px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .log-time {
+            color: #6b7280;
+        }
+
+        .log-message {
+            flex: 1;
+        }
+
+        .log-success { color: #10b981; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #60a5fa; }
+        .log-warning { color: #f59e0b; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
         }
     </style>
-
 </head>
 
-<body ng-controller="AppCtrl" class="draggable">
-
-    <div class="ui top attached tabular menu">
-        <a class="item active notDraggable" data-tab="first"><i class="large eye icon"></i>Victims</a>
-        <a class="item notDraggable" data-tab="second"><i class="large green android icon"></i>APK Builder</a>
-        <div class="ui right mini text menu notDraggable">
-            <button class=" ui circular orange button" ng-click="minimize()"
-                style="font-size: 6px;height: 17px"></button>
-            <button class="ui circular green button" ng-click="maximize()" style="font-size: 6px;height: 17px"></button>
-            <button class="ui circular red button" ng-click="close()" style="font-size: 6px;height: 17px"></button>
+<body ng-controller="AppCtrl">
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-title">
+            <img src="assets/img/icon.png" alt="ANRAT">
+            <span>ANRAT - Android Remote Administration Tool</span>
+        </div>
+        <div class="titlebar-controls">
+            <div class="titlebar-button btn-minimize" ng-click="minimize()"></div>
+            <div class="titlebar-button btn-maximize" ng-click="maximize()"></div>
+            <div class="titlebar-button btn-close" ng-click="close()"></div>
         </div>
     </div>
 
-    <div class="ui bottom attached tab segment active h60 notDraggable" data-tab="first">
-        <div class="ui grid h100">
-            <div class="row h30">
-                <div class="column">
-                    <div class="ui horizontal segments">
-                        <div class="ui segment">
-                            <h2 class="ui left floated header">
-                                <img class="ui image" src="assets/img/VictimsLab.png">
-                                <div class="content">
-                                    VICTIMS 
-                                </div>
-                            </h2>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>ANRAT Console</h2>
+                <p>Remote Administration</p>
+            </div>
+
+            <div class="sidebar-menu">
+                <div class="menu-section">
+                    <div class="menu-section-title">Main</div>
+                    <a class="menu-item active" data-view="dashboard">
+                        <i class="eye icon"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="menu-item" data-view="builder">
+                        <i class="android icon"></i>
+                        <span>APK Builder</span>
+                    </a>
+                </div>
+
+                <div class="menu-section" ng-if="Object.keys(victims).length > 0">
+                    <div class="menu-section-title">Connected Devices</div>
+                    <a class="menu-item" ng-repeat="(key, victim) in victims" ng-click="openLab(key)">
+                        <i class="mobile alternate icon"></i>
+                        <span>{{victim.model}}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-header">
+                <h1>{{currentView === 'dashboard' ? 'Dashboard' : 'APK Builder'}}</h1>
+            </div>
+
+            <div class="content-body">
+                <!-- Dashboard View -->
+                <div ng-show="currentView === 'dashboard'">
+                    <!-- Server Control Card -->
+                    <div class="card">
+                        <div class="card-title">Server Control</div>
+                        <div class="server-control">
+                            <div class="input-group">
+                                <label>Port:</label>
+                                <input type="number" ng-model="port" placeholder="42474">
+                            </div>
+                            <button class="btn btn-primary" ng-click="clearLogs(); Listen(port)">
+                                <i class="play icon"></i>
+                                Start Listening
+                            </button>
+                            <button class="btn btn-danger" ng-click="clearLogs(); StopListening(port)">
+                                <i class="stop icon"></i>
+                                Stop Server
+                            </button>
                         </div>
-                        <div class="ui center aligned segment">
-                            <div style="line-height: 70px">
-                                <div class="ui right floated labeled input">
-                                    <div class="ui label">
-                                        Port
-                                    </div>
-                                    <input type="text" ng-model="port" placeholder="Default is 42474">
-                                </div>
-                                <button ng-click="clearLogs(); Listen(port)"
-                                    class="ui labeled icon black button"><i class="terminal icon"></i>Listen</button>
-                                <button ng-click="clearLogs(); StopListening(port)"
-                                    class="ui labeled icon black button"><i class="terminal icon"></i>Stop</button>
+                    </div>
+
+                    <!-- Victims Card -->
+                    <div class="card">
+                        <div class="card-title">Connected Victims ({{Object.keys(victims).length}})</div>
+                        
+                        <table class="victims-table" ng-if="Object.keys(victims).length > 0">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Model</th>
+                                    <th>Android Version</th>
+                                    <th>IP Address</th>
+                                    <th>Country</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="(key, victim) in victims">
+                                    <td>
+                                        <strong>{{victim.manf}}</strong>
+                                    </td>
+                                    <td>{{victim.model}}</td>
+                                    <td>{{victim.release}}</td>
+                                    <td>{{victim.ip}}:{{victim.port}}</td>
+                                    <td>
+                                        <i ng-if="victim.country" class="{{victim.country}} flag"></i>
+                                        <i ng-if="!victim.country" class="question circle icon"></i>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-online">
+                                            <i class="circle icon" style="font-size: 8px;"></i>
+                                            Online
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn-open" ng-click="openLab(key)">
+                                            Open Lab
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="empty-state" ng-if="Object.keys(victims).length === 0">
+                            <i class="mobile alternate icon"></i>
+                            <p>No victims connected yet</p>
+                            <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">
+                                Start the server and wait for connections
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Logs Card -->
+                    <div class="card">
+                        <div class="card-title">Activity Logs</div>
+                        <div class="logs-container">
+                            <div class="log-entry" ng-repeat="log in logs">
+                                <span class="log-time">{{log.date}}</span>
+                                <span class="log-message" ng-class="{
+                                    'log-success': log.color === 'green',
+                                    'log-error': log.color === 'red',
+                                    'log-info': log.color === 'cyan',
+                                    'log-warning': log.color === 'yellow'
+                                }">{{log.msg}}</span>
+                            </div>
+                            <div ng-if="logs.length === 0" style="color: #6b7280;">
+                                No activity yet...
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row h75" style="overflow: scroll;">
-                <div class="column">
-                    <table class="ui table single line selectable">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Country</th>
-                                <th>Merk</th>
-                                <th>Model</th>
-                                <th>Release</th>
-                                <th>IP</th>
-                                <th>Port</th>
-                                <th></th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-
-                            <tr ng-repeat="(key, victim) in victims">
-                                <td><a class="ui black ribbon label" ng-click="openLab(key)">Open The target</a></td>
-                                <td ng-if="victim.country != null"><i class="{{victim.country}} flag"></i></td>
-                                <td ng-if="victim.country == null"><i class="help circle icon"></i></td>
-                                <td ng-bind="victim.manf"></td>
-                                <td ng-bind="victim.model"></td>
-                                <td ng-bind="victim.release"></td>
-                                <td ng-bind="victim.ip"></td>
-                                <td ng-bind="victim.port"></td>
-                                <td></td>
-                            </tr>
-
-                        </tbody>
-                    </table>
+                <!-- Builder View -->
+                <div ng-show="currentView === 'builder'">
+                    <div ng-include="'views/build.html'"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <div class="ui bottom attached tab segment h60 notDraggable" data-tab="second">
-        <div ng-include="'views/build.html'" class="full"></div>
-    </div>
-
-    <div class="ui bottom attached black message notDraggable" id="log">
-        <div ng-repeat="log in logs" class="log">
-            <div class="w30" style="display: inline-block" ng-bind="log.date"></div>
-            <div class="w65" style="display: inline-block" ng-style="{'color':log.color}" ng-bind="log.msg"></div>
-        </div>
-    </div>
-
+    <script>
+        // Handle menu switching
+        $(document).ready(function() {
+            $('.menu-item[data-view]').click(function() {
+                const view = $(this).data('view');
+                $('.menu-item').removeClass('active');
+                $(this).addClass('active');
+                
+                const scope = angular.element(document.body).scope();
+                scope.$apply(function() {
+                    scope.currentView = view;
+                });
+            });
+        });
+    </script>
 </body>
-
 </html>

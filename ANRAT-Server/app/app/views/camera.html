@@ -1,20 +1,46 @@
-<div class="ui {{load}} basic segment h100 " style="overflow-y:auto;overflow-x: auto;white-space:nowrap; height: 400px;">
-    <div class="ui grid center aligned h100">
-        <div class="row h20">
-            <div class="sixteen wide column">
-                <select class="ui dropdown" ng-options="item.name for item in cameras" ng-model="selectedCam"></select>
-                <button class="ui labeled icon black button" ng-click="snap()"><i class="photo icon"></i>Snap</button>
-            </div>
-        </div>
-        <div class="row h80">
-            <div class="sixteen wide column h100" style="display: flex; justify-content: center;">
-                <div class="ui h100 image ">
-                    <a class="ui red ribbon label" ng-show="isSaveShown" ng-click="savePhoto()">
-                        <i class="save icon"></i> Save
-                    </a>
-                    <img style="height: 100%;" src="./assets/img/imageHolder.png" ng-src="{{imgUrl}}"></img>
+<div class="ui {{load}} segment" style="border: none; box-shadow: none; padding: 0;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;">
+            <i class="camera red icon"></i> Camera Control
+        </h2>
+        
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; opacity: 0.9; display: block; margin-bottom: 8px;">Select Camera</label>
+                    <select class="ui dropdown" ng-options="item.name for item in cameras" ng-model="selectedCam" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 10px; border-radius: 6px; width: 200px;">
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 12px; opacity: 0.9; display: block; margin-bottom: 8px;">&nbsp;</label>
+                    <button class="btn btn-primary" ng-click="snap()" style="background: white; color: #f5576c; padding: 10px 24px;">
+                        <i class="camera icon"></i> Take Photo
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="image-container" style="background: #f9fafb; padding: 30px; border-radius: 10px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <div ng-if="!imgUrl" style="text-align: center; color: #9ca3af;">
+            <i class="camera icon" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <p style="font-size: 16px;">No photo captured yet</p>
+            <p style="font-size: 14px; margin-top: 8px;">Select a camera and click "Take Photo" to capture</p>
+        </div>
+        
+        <div ng-if="imgUrl" style="position: relative; width: 100%;">
+            <button ng-show="isSaveShown" ng-click="savePhoto()" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <i class="save icon"></i> Save Photo
+            </button>
+            <img style="width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" src="./assets/img/imageHolder.png" ng-src="{{imgUrl}}">
+        </div>
+    </div>
 </div>
+
+<style>
+    .ui.dropdown {
+        background: rgba(255,255,255,0.2) !important;
+        border: 1px solid rgba(255,255,255,0.3) !important;
+        color: white !important;
+    }
+</style>

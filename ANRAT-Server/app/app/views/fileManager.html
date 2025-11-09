@@ -1,15 +1,55 @@
-<div class="ui segment {{load}} full" style="overflow-y:auto;overflow-x: auto;white-space:nowrap; height: 400px;" id="parent">
-    <div class="ui list" style="overflow-y:auto;white-space:nowrap;" infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
-        <div class="item" ng-repeat="file in files | limitTo:barLimit | orderBy:['-isDir','name']">
+<div class="ui segment {{load}}" style="border: none; box-shadow: none; padding: 0; height: 600px; overflow: hidden;" id="parent">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">
+            <i class="folder open teal icon"></i> File Manager
+        </h2>
+        <p style="color: #6b7280; font-size: 14px; margin: 0;">Browse and download files from target device</p>
+    </div>
 
-            <a ng-click="getFiles(file.path)" ng-if="file.isDir">
-                <i class="folder icon"></i> {{file.name}}
-            </a>
-            <div class="ui label" ng-if="!file.isDir">
-                <i class="file icon"></i> {{file.name}} &nbsp;&nbsp;
-                <a ng-click="saveFile(file.path)"><i class="save red icon"></i></a>
+    <div style="background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 20px; max-height: 520px; overflow-y: auto;" infinite-scroll="increaseLimit()" infinite-scroll-container='"#parent"'>
+        
+        <div ng-if="files.length === 0" style="text-align: center; padding: 60px 20px; color: #9ca3af;">
+            <i class="folder open icon" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px; display: block;"></i>
+            <p style="font-size: 16px; margin: 0;">No files loaded</p>
+            <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Files will appear here once you browse the device</p>
+        </div>
+
+        <div class="ui list" style="overflow-y:auto; white-space:nowrap;" ng-if="files.length > 0">
+            <div class="item" ng-repeat="file in files | limitTo:barLimit | orderBy:['-isDir','name']" style="padding: 12px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; transition: all 0.2s;">
+                
+                <!-- Folder -->
+                <div ng-if="file.isDir" ng-click="getFiles(file.path)" style="cursor: pointer; display: flex; align-items: center; gap: 12px; flex: 1;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #14b8a6, #0d9488); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="folder icon" style="margin: 0; font-size: 18px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500; font-size: 14px; color: #1f2937;">{{file.name}}</div>
+                        <div style="font-size: 12px; color: #6b7280;">Folder</div>
+                    </div>
+                    <i class="chevron right icon" style="color: #9ca3af;"></i>
+                </div>
+
+                <!-- File -->
+                <div ng-if="!file.isDir" style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="file icon" style="margin: 0; font-size: 18px;"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 500; font-size: 14px; color: #1f2937;">{{file.name}}</div>
+                        <div style="font-size: 12px; color: #6b7280;">File</div>
+                    </div>
+                    <button ng-click="saveFile(file.path)" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 6px;">
+                        <i class="download icon" style="margin: 0;"></i> Download
+                    </button>
+                </div>
+
             </div>
-
         </div>
     </div>
 </div>
+
+<style>
+    .item:hover {
+        background: #f9fafb !important;
+    }
+</style>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html ng-app="myappy">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANRAT Lab</title>
+    
     <script>
         if (typeof module === 'object') {
             window.module = module;
@@ -20,123 +20,434 @@
     <script type="text/javascript" src="assets/js/lib/leaflet.js"></script>
     <script type="text/javascript" src="assets/js/controllers/LabCtrl.js"></script>
 
-    <!-- Insert this line after script imports -->
     <script>
         if (window.module) module = window.module;
     </script>
 
-    <link rel="stylesheet" href="assets/css/mystyle.css">
     <link rel="stylesheet" href="../node_modules/fomantic-ui/dist/semantic.min.css" />
     <link rel="stylesheet" href="assets/css/leaflet.css" />
+    
     <style>
-        #logy {
-            height: 158px;
-            overflow: scroll;
-        }
-        
-        body {
-            background-color: #0c094f;
-        }
-        
-        #icons {
-            width: 50px;
-            height: 50px;
-        }
-        
-        #tulisan {
-            font-size: 18px;
-            color: white;
+        * {
             margin: 0;
-            line-height: 50px;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .header-center {
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+
+        /* Titlebar */
+        .titlebar {
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            -webkit-app-region: drag;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .titlebar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .titlebar-left img {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+        }
+
+        .titlebar-info h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .titlebar-info p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .titlebar-controls {
+            display: flex;
+            gap: 10px;
+            -webkit-app-region: no-drag;
+        }
+
+        .titlebar-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .titlebar-button:hover {
+            opacity: 0.8;
+        }
+
+        .btn-maximize { background: #10b981; }
+        .btn-close { background: #ef4444; }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #1a202c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .sidebar-header h3 {
+            font-size: 14px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 10px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(96, 165, 250, 0.1);
+            color: #60a5fa;
+        }
+
+        .menu-item.active {
+            background: rgba(96, 165, 250, 0.15);
+            color: #60a5fa;
+            border-left-color: #60a5fa;
+        }
+
+        .menu-item i {
+            width: 24px;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        .menu-item span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-item.red i { color: #ef4444; }
+        .menu-item.teal i { color: #14b8a6; }
+        .menu-item.blue i { color: #3b82f6; }
+        .menu-item.violet i { color: #8b5cf6; }
+        .menu-item.purple i { color: #a855f7; }
+        .menu-item.grey i { color: #6b7280; }
+        .menu-item.black i { color: #374151; }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .content-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f5f7fa;
+        }
+
+        /* View Container */
+        .view-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-height: 100%;
+        }
+
+        /* Logs */
+        .logs-footer {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 15px 20px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            border-top: 1px solid #374151;
+        }
+
+        .log-entry {
+            margin-bottom: 6px;
+            display: flex;
             gap: 10px;
         }
-        
-        .ui.inverted.mini.text.labeled.icon.menu {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px !important;
+
+        .log-time {
+            color: #6b7280;
+            min-width: 80px;
         }
-        
-        .ui.inverted.mini.text.labeled.icon.menu .right.menu {
-            position: absolute;
-            right: 10px;
+
+        .log-message {
+            flex: 1;
+        }
+
+        /* Card Styles */
+        .info-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table thead {
+            background: #f9fafb;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Image Display */
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Loading */
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        /* Map Container */
+        #mapid {
+            height: 500px;
+            border-radius: 8px;
+            margin-top: 20px;
         }
     </style>
-
 </head>
 
-<body ng-controller="LabCtrl" class="draggable">
+<body ng-controller="LabCtrl">
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-left">
+            <img src="assets/img/icon.png" alt="ANRAT">
+            <div class="titlebar-info">
+                <h2>Target Lab Control</h2>
+                <p>Remote Device Management</p>
+            </div>
+        </div>
+        <div class="titlebar-controls">
+            <div class="titlebar-button btn-maximize" ng-click="maximize()"></div>
+            <div class="titlebar-button btn-close" ng-click="close()"></div>
+        </div>
+    </div>
 
-    <div class="ui grid h80">
-        <div class="row h10">
-            <div class="sixteen wide column">
-                <div class="ui inverted mini text labeled icon menu">
-                    <div class="header-center">
-                        <img src="assets/img/icon.png" id="icons"/>
-                        <p id="tulisan">ANRAT by Superxeon</p>
-                    </div>
-                    
-                    <div class="right menu notDraggable">
-                        <button class="ui circular green button" ng-click="maximize()"
-                            style="font-size: 6px;height: 17px"></button>
-                        <button class="ui circular red button" ng-click="close()"
-                            style="font-size: 6px;height: 17px"></button>
-                    </div>
-                </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Remote Control</h3>
+            </div>
+
+            <div class="sidebar-menu">
+                <a class="menu-item red active" ng-click="goToPage('camera')">
+                    <i class="camera icon"></i>
+                    <span>Camera</span>
+                </a>
+                <a class="menu-item teal" ng-click="goToPage('fileManager')">
+                    <i class="folder open icon"></i>
+                    <span>File Manager</span>
+                </a>
+                <a class="menu-item blue" ng-click="goToPage('mic')">
+                    <i class="microphone icon"></i>
+                    <span>Microphone</span>
+                </a>
+                <a class="menu-item violet" ng-click="goToPage('location')">
+                    <i class="map marker alternate icon"></i>
+                    <span>Location</span>
+                </a>
+                <a class="menu-item purple" ng-click="goToPage('contacts')">
+                    <i class="users icon"></i>
+                    <span>Contacts</span>
+                </a>
+                <a class="menu-item grey" ng-click="goToPage('smsManager')">
+                    <i class="comment alternate icon"></i>
+                    <span>SMS Manager</span>
+                </a>
+                <a class="menu-item black" ng-click="goToPage('callsLogs')">
+                    <i class="phone icon"></i>
+                    <span>Call Logs</span>
+                </a>
             </div>
         </div>
 
-        <div class="row h15 notDraggable">
-            <div class="sixteen wide column">
-                <div class="ui mini borderless labeled icon fluid seven item menu">
-                    <a class="item" ng-click="goToPage('camera')">
-                        <i class="red photo icon"></i> Camera
-                    </a>
-                    <a class="item" ng-click="goToPage('fileManager')">
-                        <i class=" teal folder icon "></i> File Manager
-                    </a>
-                    <a class="item" ng-click="goToPage('mic')">
-                        <i class="blue unmute icon "></i> Mic
-                    </a>
-                    <a class="item " ng-click="goToPage('location')">
-                        <i class="violet marker icon "></i> Location
-                    </a>
-                    <a class="item " ng-click="goToPage('contacts')">
-                        <i class="purple users icon "></i> contacts
-                    </a>
-                    <a class="item " ng-click="goToPage('smsManager')">
-                        <i class="grey talk outline icon "></i> SMS
-                    </a>
-                    <a class="item " ng-click="goToPage('callsLogs')">
-                        <i class="black call icon "></i> Calls Logs
-                    </a>
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="content-body">
+                <div class="view-container">
+                    <div ng-view></div>
                 </div>
             </div>
-        </div>
 
-        <div class="row centered h75 notDraggable ">
-            <div class="sixteen wide column">
-                <div class="ui segment full">
-                    <div ng-view class="full">
-                    </div>
+            <!-- Logs Footer -->
+            <div class="logs-footer">
+                <div class="log-entry" ng-repeat="log in logs">
+                    <span class="log-time">{{log.date}}</span>
+                    <span class="log-message" ng-style="{'color': log.color}">{{log.msg}}</span>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div class="ui bottom attached black message notDraggable " id="logy" style="overflow: scroll;">
-        <div ng-repeat="log in logs " class="log ">
-            <div class="w30 " style="display: inline-block " ng-bind="log.date "></div>
-            <div class="w65 " style="display: inline-block " ng-style="{ 'color':log.color} " ng-bind="log.msg "></div>
-        </div>
-    </div>
+
+    <script>
+        // Handle menu switching
+        $(document).ready(function() {
+            $('.menu-item').click(function() {
+                $('.menu-item').removeClass('active');
+                $(this).addClass('active');
+            });
+        });
+    </script>
 </body>
-
 </html>

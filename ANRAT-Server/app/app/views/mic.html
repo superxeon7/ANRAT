@@ -1,28 +1,66 @@
-<div class="ui segment h100">
-    <div class="ui grid center aligned h100">
-        <div class="row h30">
-            <div class="column">
-                <div class="ui right floated labeled input">
-                    <div class="ui label">
-                        Seconds
-                    </div>
-                    <input type="text" ng-model="sec" placeholder="">
-                </div>
-                <button class="ui labeled icon black button" ng-click="Record(sec)"><i class="photo icon"></i>Record</button>
+<div class="ui segment" style="border: none; box-shadow: none; padding: 0; min-height: 500px;">
+    <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 10px;">
+            <i class="microphone blue icon"></i> Audio Recording
+        </h2>
+        <p style="color: #6b7280; font-size: 14px; margin: 0;">Record audio from target device microphone</p>
+    </div>
+
+    <!-- Recording Control Card -->
+    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 25px; border-radius: 10px; margin-bottom: 25px;">
+        <h3 style="margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">
+            <i class="microphone icon"></i> Recording Controls
+        </h3>
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0.9;">Recording Duration (seconds)</label>
+                <input type="number" ng-model="sec" placeholder="Enter duration in seconds" style="width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.2); color: white;">
             </div>
-        </div>
-        <div class="row  h70">
-            <div class="column h100">
-                <div class="ui segment">
-                    <audio controls id="player">
-                   <source src="" id="sourceMp3" type="audio/mp3">
-                      Not Supported.
-                </audio>
-                    <br>
-                    <br>
-                    <button class="ui red button" ng-click="SaveAudio()" ng-disabled="isAudio"><i class="save icon" ></i>Save</button>
-                </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; opacity: 0;">&nbsp;</label>
+                <button class="btn btn-primary" ng-click="Record(sec)" style="background: white; color: #1d4ed8; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 10px;">
+                    <i class="circle icon" style="color: #ef4444; margin: 0;"></i> Start Recording
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Audio Player Card -->
+    <div style="background: white; border-radius: 10px; padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 25px;">
+            <i class="play circle icon" style="color: #3b82f6;"></i> Audio Player
+        </h3>
+
+        <div style="text-align: center; padding: 40px 20px; background: #f9fafb; border-radius: 8px; margin-bottom: 25px;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="music icon" style="color: white; font-size: 36px; margin: 0;"></i>
+            </div>
+            
+            <audio controls id="player" style="width: 100%; margin-bottom: 15px;">
+                <source src="" id="sourceMp3" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+            
+            <p style="color: #6b7280; font-size: 14px; margin-top: 15px;">
+                Record audio to play it here
+            </p>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="btn btn-primary" ng-click="SaveAudio()" ng-disabled="isAudio" style="background: #3b82f6; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; gap: 10px; opacity: 1;" ng-style="{'opacity': isAudio ? '0.5' : '1', 'cursor': isAudio ? 'not-allowed' : 'pointer'}">
+                <i class="download icon"></i> Save Audio
+            </button>
+        </div>
+    </div>
 </div>
+
+<style>
+    input::placeholder {
+        color: rgba(255,255,255,0.7) !important;
+    }
+    
+    audio::-webkit-media-controls-panel {
+        background: white;
+    }
+</style>
