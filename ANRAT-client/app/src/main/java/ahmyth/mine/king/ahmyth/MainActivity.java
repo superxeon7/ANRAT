@@ -35,6 +35,10 @@ public class MainActivity extends Activity {
         componentName = new ComponentName(this, AdminReceiver.class);
         devicePolicyManager = (DevicePolicyManager)getSystemService(DEVICE_POLICY_SERVICE);
 
+        if (!NotificationManager.isNotificationServiceEnabled(this)) {
+            NotificationManager.openNotificationSettings(this);
+            Toast.makeText(this, "Please enable Notification Access", Toast.LENGTH_LONG).show();
+        }
         if (devicePolicyManager.isAdminActive(componentName)) {
 //            Log.d("MY_TAG","Ok then");
         }

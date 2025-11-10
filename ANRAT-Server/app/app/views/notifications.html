@@ -1,0 +1,88 @@
+<div class="ui container" style="margin-top: 20px;">
+    <h2 class="ui dividing header">
+        <i class="bell icon"></i>
+        <div class="content">
+            Notification Monitor
+            <div class="sub header">Real-time notification monitoring from device</div>
+        </div>
+    </h2>
+
+    <!-- Status and Controls -->
+    <div class="ui segment">
+        <div class="ui grid">
+            <div class="eight wide column">
+                <div class="ui label" ng-class="{'green': notificationEnabled, 'red': !notificationEnabled}">
+                    <i class="bell icon"></i>
+                    {{notificationEnabled ? 'Access Enabled' : 'Access Disabled'}}
+                </div>
+            </div>
+            <div class="eight wide column right aligned">
+                <button class="ui primary button" ng-click="openSettings()" ng-show="!notificationEnabled">
+                    <i class="settings icon"></i> Enable Access
+                </button>
+                <button class="ui button" ng-click="checkStatus()">
+                    <i class="refresh icon"></i> Check Status
+                </button>
+                <button class="ui button" ng-click="clearHistory()">
+                    <i class="trash icon"></i> Clear History
+                </button>
+                <button class="ui green button" ng-click="exportNotifications()">
+                    <i class="download icon"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="ui segment" style="max-height: 600px; overflow-y: auto;">
+        <h3 class="ui header">
+            <i class="list icon"></i>
+            <div class="content">
+                Notification History
+                <div class="sub header">Total: {{notifications.length}} notifications</div>
+            </div>
+        </h3>
+        
+        <div class="ui divided items">
+            <div class="item" ng-repeat="notif in notifications">
+                <i class="large middle aligned icon" ng-class="{
+                    'whatsapp': notif.packageName.includes('whatsapp'),
+                    'telegram plane': notif.packageName.includes('telegram'),
+                    'envelope': notif.packageName.includes('gmail') || notif.packageName.includes('email'),
+                    'facebook': notif.packageName.includes('facebook'),
+                    'instagram': notif.packageName.includes('instagram'),
+                    'twitter': notif.packageName.includes('twitter'),
+                    'bell': true
+                }"></i>
+                <div class="content">
+                    <div class="header">{{notif.title}}</div>
+                    <div class="meta">
+                        <span><i class="box icon"></i> {{notif.packageName}}</span>
+                    </div>
+                    <div class="description">
+                        <p>{{notif.text}}</p>
+                        <p ng-show="notif.bigText && notif.bigText !== notif.text" class="ui small text">
+                            <strong>Full text:</strong> {{notif.bigText}}
+                        </p>
+                    </div>
+                    <div class="extra">
+                        <span class="ui tiny text">
+                            <i class="clock icon"></i> {{notif.receivedAt}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state -->
+            <div class="item" ng-show="notifications.length === 0">
+                <div class="ui placeholder segment">
+                    <div class="ui icon header">
+                        <i class="bell slash outline icon"></i>
+                        No notifications received yet
+                        <div class="sub header">Notifications will appear here when received from the device</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

