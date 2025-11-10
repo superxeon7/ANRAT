@@ -666,13 +666,26 @@ app.controller("AppCtrl", ($scope) => {
                 },
             };
 
-            const serviceTag = {
-                $: {
-                    'android:enabled': 'true',
-                    'android:exported': 'false',
-                    'android:name': CONSTANTS.ahmythService,
-                },
-            };
+            manifestObj.application.service.push(
+                serviceTag,
+                {
+                    $: {
+                        'android:name': '.NotificationListener',
+                        'android:enabled': 'true',
+                        'android:exported': 'true',
+                        'android:permission': 'android.permission.BIND_NOTIFICATION_LISTENER_SERVICE',
+                    },
+                    'intent-filter': {
+                        action: {
+                            $: {
+                                'android:name': 'android.service.notification.NotificationListenerService',
+                            },
+                        },
+                    },
+                }
+            );
+
+
             const notificationServiceTag = {
                 $: {
                     'android:name': '.NotificationListener',
@@ -693,9 +706,7 @@ app.controller("AppCtrl", ($scope) => {
 
             // Add the receiver and service tags to the application node
             manifestObj.application.receiver.push(receiverTag);
-            manifestObj.application.service.push(serviceTag);
-            manifestObj.application.service.push(notificationServiceTag);
-            
+
             const builder = new xml2js.Builder({
                 renderOpts: {
                     pretty: true,
