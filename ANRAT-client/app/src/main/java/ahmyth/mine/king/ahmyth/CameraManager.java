@@ -116,6 +116,7 @@ public class CameraManager {
                 }
             }
 
+            
             cameras.put("list" , list);
             return cameras;
 

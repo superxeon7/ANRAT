@@ -24,5 +24,9 @@
         "build:win": "npm run build:win32 && npm run build:win64",
         "build:win32": "npx electron-builder --win --ia32",
         "build:win64": "npx electron-builder --win --x64"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2"
     }
 }

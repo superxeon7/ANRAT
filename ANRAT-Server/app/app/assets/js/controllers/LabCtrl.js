@@ -49,7 +49,10 @@ app.config(function ($routeProvider) {
         .when("/notifications", {  // TAMBAHKAN INI
             templateUrl: "./views/notifications.html",
             controller: "NotifCtrl"
-        });
+        })
+        .when("/about", {
+            templateUrl: "./views/about.html"
+        })
 });
 
 
@@ -115,7 +118,7 @@ app.controller("LabCtrl", function ($scope, $rootScope, $location) {
 
 });
 
-
+//.......................About Controllers..........................
 
 //-----------------------Notification Controller (notifications.htm)------------------------
 // Notification controller
@@ -439,6 +442,53 @@ app.controller("SMSCtrl", function ($scope, $rootScope) {
 });
 
 
+app.controller("AboutCtrl", function ($scope, $rootScope) {
+
+    const $AboutCtrl = $scope;
+
+    // Initialize variables
+    $AboutCtrl.networkName = "Loading...";
+    $AboutCtrl.battery = "Loading...";
+
+    const orders = {
+        network: CONSTANTS.orders.networkName,
+        battery: CONSTANTS.orders.battery  // new order for battery
+    };
+
+    // Cleanup socket listeners on destroy
+    $AboutCtrl.$on("$destroy", () => {
+        Object.values(orders).forEach(order => socket.removeAllListeners(order));
+    });
+
+    // Request network name and battery info
+    $rootScope.Log("Requesting Network Name & Battery info...");
+    Object.values(orders).forEach(order => socket.emit(ORDER, { order }));
+
+    // Listen for network name
+    socket.on(orders.network, (data) => {
+        if (data && data.networkName) {
+            $AboutCtrl.networkName = data.networkName;
+            $rootScope.Log("Network name received", CONSTANTS.logStatus.SUCCESS);
+        } else {
+            $AboutCtrl.networkName = "Unknown";
+            $rootScope.Log("Failed to get Network name", CONSTANTS.logStatus.FAIL);
+        }
+        $AboutCtrl.$applyAsync();
+    });
+
+    // Listen for battery info
+    socket.on(orders.battery, (data) => {
+        if (data && typeof data.level !== "undefined") {
+            $AboutCtrl.battery = `${data.level}%`;
+            $rootScope.Log("Battery info received", CONSTANTS.logStatus.SUCCESS);
+        } else {
+            $AboutCtrl.battery = "Unknown";
+            $rootScope.Log("Failed to get battery info", CONSTANTS.logStatus.FAIL);
+        }
+        $AboutCtrl.$applyAsync();
+    });
+
+});
 
 
 

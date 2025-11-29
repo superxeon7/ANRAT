@@ -148,4 +148,5 @@ exports.orders = {
   location: 'x0000lm',
   contacts: 'x0000cn',
   notification: 'x0000nf',
+  about: 'x0000ab',
 }
