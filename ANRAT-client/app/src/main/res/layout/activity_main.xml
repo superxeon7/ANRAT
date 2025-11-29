@@ -6,41 +6,50 @@
     android:layout_height="match_parent"
     tools:context="ahmyth.mine.king.ahmyth.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
-        android:gravity="center_horizontal"
-        android:padding="20dp"
-        android:text="@string/oops_failed_to_open_google_play_please_open_it_manually"
-        android:textAlignment="center"
-        android:textColor="#C70039"
-        android:textSize="18sp" />
+    <EditText
+        android:id="@+id/pairingCode"
+        android:layout_width="match_parent"
+        android:layout_height="132dp"
+        android:ems="15"
+        android:hint="Enter code Pairing"
+        android:inputType="number"
+        android:rotationX="0"
+        android:textSize="34sp" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/open_google_play"
-        android:gravity="center"
-        android:layout_centerInParent="true"
-        android:padding="15dp"
-        android:background="#1B5E20"
-        android:textColor="#fff"
-        android:id="@+id/openGooglePlayBtn"
-        android:onClick="openGooglePlay"/>
+        android:id="@+id/pairingBtn"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless.Small"
+        android:layout_width="142dp"
+        android:layout_height="69dp"
+        android:background="#3F51B5"
+        android:rotation="0"
+        android:scaleX="1"
+        android:text="PAIR"
+        android:textAppearance="@android:style/TextAppearance.Material.Display1"
+        android:textColor="#FFFFFF"
+        android:translationX="140dp"
+        android:translationY="300dp" />
+
+    <Button
+        android:id="@+id/listenerBtn"
+        android:layout_width="112dp"
+        android:layout_height="68dp"
+        android:background="#FB5555"
+        android:text="Button"
+        android:translationX="140dp"
+        android:translationY="450dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="218dp"
+        android:layout_height="30dp"
+        android:text="aktifkan notifikasi listener"
+        android:translationX="110dp"
+        android:translationY="420dp" />
 
     <Switch
         android:id="@+id/switch1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hide_app_icon"
-        android:textStyle="bold"
-        android:layout_below="@+id/openGooglePlayBtn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:visibility="invisible"/>
-
-
+        android:text="Switch" />
 </RelativeLayout>

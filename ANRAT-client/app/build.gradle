@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion '25.0.3'
+    buildToolsVersion '30.0.3'
     defaultConfig {
         applicationId "ahmyth.mine.king.ahmyth"
-        minSdkVersion 16
+        minSdkVersion 19
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
         versionCode 1
@@ -35,4 +35,7 @@ android {
         }
         testImplementation 'junit:junit:4.13.2'
     }
+}
+dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
 }
