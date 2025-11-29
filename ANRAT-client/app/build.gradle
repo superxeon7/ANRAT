@@ -36,3 +36,6 @@ android {
         testImplementation 'junit:junit:4.13.2'
     }
 }
+dependencies {
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+}

